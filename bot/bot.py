@@ -75,6 +75,7 @@ in_process = False
 initiated_by = False
 flag = False
 countMessageGroup = 0
+firstStart = True
 
 instace_init = {
     elio_gonzalez: "Elio",
@@ -84,7 +85,7 @@ instace_init = {
 
 @app.route('/messages/upsert', methods=['POST', 'GET'])
 def webhook():
-    global in_process, initiated_by, flag, countMessageGroup
+    global in_process, initiated_by, flag, countMessageGroup, firstStart
     isFile = False
     if request.method == 'POST':
         request_json = request.json
@@ -139,7 +140,8 @@ def webhook():
                     if not fromMe and (test_room_group == remoteJid) and userInstance in allowed_instances:
                         countMessageGroup+=1
 
-                    if countMessageGroup == int(config["SEND_AD_EVERY_N_TIMES"]):
+                    if countMessageGroup == int(config["SEND_AD_EVERY_N_TIMES"]) or firstStart:
+                        firstStart = False
                         countMessageGroup = 0
                         print("Ad in process!")
                         send_image(test_room_group, yeniredTequeños, randomMessage, userInstance)
