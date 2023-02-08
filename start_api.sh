@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sleep 60
+
 # Create a new tmux session
 tmux new-session -d -s start_api
 

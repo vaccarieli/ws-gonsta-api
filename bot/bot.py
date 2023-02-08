@@ -14,6 +14,12 @@ import re
 import json
 from time import sleep
 from config import config
+import logging
+
+# set up logging
+logging.basicConfig(filename='/home/vaccarieli/files/ws-messages.log', level=logging.INFO,
+                    format='%(asctime)s %(message)s')
+
 
 IP, PORT = config["WEBHOOK_APP_IP"], int(config["WEBHOOK_APP_PORT"])
 
@@ -49,7 +55,7 @@ allowed_people = [mi_numero, miguel_numero]
 elio_gonzalez = "Elio Gonzalez"
 yenired_rico = "Yenired Rico"
 miguel_david = "Diguel David"
-allowed_instances = ["Miguel"]
+allowed_instances = ["Yenired"]
 
 def random_messages():
     with open(tequeñosMessages, "r", encoding="utf-8") as file: 
@@ -67,14 +73,12 @@ randomMessage = random_messages()
 app = Flask(__name__)
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
-lock_dict = Lock()
-write_json = Lock()
-message_in_process = Lock()
-print_message  = Lock()
+log_message  = Lock()
 in_process = False
 initiated_by = False
 flag = False
 countMessageGroup = 0
+firstStart = True
 
 instace_init = {
     elio_gonzalez: "Elio",
@@ -82,9 +86,9 @@ instace_init = {
     miguel_david: "Miguel"
 }
 
-@app.route('/messages/upsert', methods=['POST', 'GET'])
+@app.route('/messages/upsert', methods=['POST'])
 def webhook():
-    global in_process, initiated_by, flag, countMessageGroup
+    global in_process, initiated_by, flag, countMessageGroup, firstStart
     isFile = False
     if request.method == 'POST':
         request_json = request.json
@@ -106,9 +110,9 @@ def webhook():
             message_time = str(datetime.fromtimestamp(int(messageTimestamp)))
             wasReactionMessage = request_json.get("wasReactionMessage", False)
 
-            with print_message:
+            with log_message:
                 if not isFile:
-                    print(f"{message_time}|{chatType} : {userInstance} - {pushName}: {message}")
+                    logging.info(f"{chatType} : {userInstance} - {pushName}: {message}")
             
             if message == "/respond":
                 pass
@@ -127,7 +131,6 @@ def webhook():
                         msg = str(f"{chatType} - {pushName} - {remoteJid}: {message}")
                     send_message(mi_numero, msg, userInstance)
             except TypeError:
-                print(f"\n{chatType}-{message}-{isBroadcast}\n")
                 traceback.print_exc()
             
             # Ignore all incoming requests once the message is in process!
@@ -136,26 +139,22 @@ def webhook():
                         return "Received"
                 flag = True
                 try:
-                    if not fromMe and (test_room_group == remoteJid) and userInstance in allowed_instances:
+                    if not fromMe and (pysllanobonitoI == remoteJid):
                         countMessageGroup+=1
 
-                    if countMessageGroup == int(config["SEND_AD_EVERY_N_TIMES"]):
+                    if countMessageGroup == int(config["SEND_AD_EVERY_N_TIMES"]) or firstStart:
+                        firstStart = False
                         countMessageGroup = 0
-                        print("Ad in process!")
-                        send_image(test_room_group, yeniredTequeños, randomMessage, userInstance)
+                        logging.info("Ad in process!")
+                        send_image(pysllanobonitoI, yeniredTequeños, randomMessage, userInstance)
                 finally:
                     flag = False
 
         except Exception as e:
             traceback.print_exc()
-            with open(Path(f"{ws_utils_path}/ws/conversation track.txt"), "a", encoding="utf-8") as file: file.write(dumps(request_json) + "\n\n" + traceback.format_exc() + "\n")
 
         return "Received"
         # return request_json["messages"][0]
-
-    if request.method == 'GET':
-        request_json = request.json
-        # print(request.method, request_json)
 
 print("App listening on IP", IP, "and PORT", PORT)
 app.run(host=IP, port=PORT, debug=False)

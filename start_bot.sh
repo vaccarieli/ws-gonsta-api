@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sleep 90
+
 # Create a new tmux session
 tmux new-session -d -s start_bot
 
