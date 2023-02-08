@@ -17,8 +17,7 @@ from config import config
 import logging
 
 # set up logging
-logging.basicConfig(filename='/home/vaccarieli/files/ws-messages.log', level=logging.INFO,
-                    format='%(asctime)s %(message)s')
+
 
 
 IP, PORT = config["WEBHOOK_APP_IP"], int(config["WEBHOOK_APP_PORT"])
@@ -57,6 +56,9 @@ yenired_rico = "Yenired Rico"
 miguel_david = "Diguel David"
 allowed_instances = ["Yenired"]
 
+logging.basicConfig(filename=ws_utils_path / 'ws-messages.log', level=logging.INFO,
+                    format='%(asctime)s %(message)s')
+
 def random_messages():
     with open(tequeñosMessages, "r", encoding="utf-8") as file: 
         listOfMessages = json.load(file)
@@ -68,7 +70,6 @@ def random_messages():
 
     return f"*{listOfMessages[turno][0]}!*"
 
-randomMessage = random_messages()
 
 app = Flask(__name__)
 log = logging.getLogger('werkzeug')
@@ -146,7 +147,7 @@ def webhook():
                         firstStart = False
                         countMessageGroup = 0
                         logging.info("Ad in process!")
-                        send_image(pysllanobonitoI, yeniredTequeños, randomMessage, userInstance)
+                        send_image(pysllanobonitoI, yeniredTequeños, random_messages(), userInstance)
                 finally:
                     flag = False
 
