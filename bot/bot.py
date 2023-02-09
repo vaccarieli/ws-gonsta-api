@@ -18,8 +18,6 @@ import logging
 
 # set up logging
 
-
-
 IP, PORT = config["WEBHOOK_APP_IP"], int(config["WEBHOOK_APP_PORT"])
 
 panamaTimeZone = pytz.timezone('America/Bogota')
@@ -132,6 +130,8 @@ def webhook():
                         msg = str(f"{chatType} - {pushName} - {remoteJid}: {message}")
                     send_message(mi_numero, msg, userInstance)
             except TypeError:
+                print(str(f"{wasReactionMessage} {chatType} - {pushName} - {participant}: {message}"))
+                print(str(f"{wasReactionMessage} {chatType} - {pushName} - {remoteJid}: {message}"))
                 traceback.print_exc()
             
             # Ignore all incoming requests once the message is in process!
