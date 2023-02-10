@@ -5,7 +5,8 @@ debug-log.txt
 testing-file.js
 data
 yarn-error.log
-yenired publicidad
 .env
 test.ts
 example.ts
+start_api.sh
+start_bot.sh
