@@ -14,7 +14,6 @@ import re
 import json
 from time import sleep
 from config import config
-import logging
 
 # set up logging
 
@@ -56,6 +55,8 @@ allowed_instances = ["Yenired"]
 
 logging.basicConfig(filename=ws_utils_path / 'ws-messages.log', level=logging.INFO,
                     format='%(asctime)s %(message)s')
+
+logger = logging.getLogger(__name__)
 
 def random_messages():
     with open(tequeñosMessages, "r", encoding="utf-8") as file: 
@@ -105,13 +106,13 @@ def webhook():
             video = request_json.get("video", False)
             image = request_json.get("image", False)
             document = request_json.get("document", False)
-            isFile = all([audio, video, image, document])
+            isFile = any([audio, video, image, document])
             message_time = str(datetime.fromtimestamp(int(messageTimestamp)))
             wasReactionMessage = request_json.get("wasReactionMessage", False)
 
             with log_message:
                 if not isFile:
-                    logging.info(f"{chatType} : {userInstance} - {pushName}: {message}")
+                    logger.info(f"{chatType} : {userInstance} - {pushName}: {message}")
             
             if message == "/respond":
                 pass
@@ -122,17 +123,18 @@ def webhook():
 
             # send message if pattern found
             try:
-                teque_combo_pattern = re.compile(r'(?i)(teque|c[o0]mb)[ñosod]?', re.IGNORECASE)
-                if re.search(teque_combo_pattern, message) and not isFile and not fromMe:
-                    if chatType == "Group":
-                        msg = str(f"{chatType} - {pushName} - {participant}: {message}")
-                    else:
-                        msg = str(f"{chatType} - {pushName} - {remoteJid}: {message}")
-                    send_message(mi_numero, msg, userInstance)
+                if not isFile:
+                    teque_combo_pattern = re.compile(r'(?i)(teque|c[o0]mb)[ñosod]?', re.IGNORECASE)
+                    if re.search(teque_combo_pattern, message) and not fromMe:
+                        if chatType == "Group":
+                            msg = str(f"{chatType} - {pushName} - {participant}: {message}")
+                        else:
+                            msg = str(f"{chatType} - {pushName} - {remoteJid}: {message}")
+                        send_message(mi_numero, msg, userInstance)
             except TypeError:
-                print(str(f"{wasReactionMessage} {chatType} - {pushName} - {participant}: {message}"))
-                print(str(f"{wasReactionMessage} {chatType} - {pushName} - {remoteJid}: {message}"))
-                traceback.print_exc()
+                logger.error(str(f"ERROR: wasReactionMessage:{wasReactionMessage}, isBroadcast:{isBroadcast}, chatType:{chatType}, pushName:{pushName}, participant:{participant}, message:{message}"))
+                logger.error(str(f"ERROR: wasReactionMessage:{wasReactionMessage}, isBroadcast:{isBroadcast}, chatType:{chatType}, pushName:{pushName}, remoteJid:{remoteJid}, message:{message}"))
+                logger.error(f"ERROR: {traceback.format_exc()}")
             
             # Ignore all incoming requests once the message is in process!
             if userInstance in allowed_instances:
@@ -146,16 +148,15 @@ def webhook():
                     if countMessageGroup == int(config["SEND_AD_EVERY_N_TIMES"]) or firstStart:
                         firstStart = False
                         countMessageGroup = 0
-                        logging.info("Ad in process!")
+                        logger.info("Ad in process!")
                         send_image(pysllanobonitoI, yeniredTequeños, random_messages(), userInstance)
                 finally:
                     flag = False
 
-        except Exception as e:
-            traceback.print_exc()
+        except Exception:
+            logger.error(f"ERROR: {traceback.format_exc()}")
 
         return "Received"
-        # return request_json["messages"][0]
 
 print("App listening on IP", IP, "and PORT", PORT)
 app.run(host=IP, port=PORT, debug=False)
