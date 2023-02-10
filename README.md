@@ -2,6 +2,10 @@
 
 This project is a fun, learning, and investigation project that aims to build a WhatsApp bot using the Bailey's library. The bot is not an official product and is not endorsed by WhatsApp or the creators of the Bailey's library. The focus of this project is to learn and improve skills with TypeScript and Python.
 
+# Library Used
+
+-   [Baileys](https://github.com/adiwajshing/Baileys/)
+
 # Purpose
 
 The purpose of this project is to explore the capabilities of the Bailey's library and to build a functional WhatsApp bot that can perform various tasks and interact with users. This project is also a learning experience, where the goal is to gain hands-on experience with the library and to understand the underlying principles and techniques involved in building a bot, while improving skills with TypeScript and Python.
