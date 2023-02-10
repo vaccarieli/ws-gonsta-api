@@ -53,6 +53,10 @@ export const handler_events = async (userSocks: any, user: any, saveCreds: any, 
                 } else {
                     console.log("Connection closed. You are logged out.");
                 }
+                console.log("error", lastDisconnect?.error as Boom);
+                console.log("error Keys", Object.keys(lastDisconnect?.error as Boom));
+                console.log("data", (lastDisconnect?.error as Boom)?.data);
+                console.log("output", (lastDisconnect?.error as Boom)?.output);
             }
             console.log("connection update", update);
         }

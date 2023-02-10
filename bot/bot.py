@@ -2,21 +2,16 @@ from flask import Flask, request
 from wsmsg import send_message, send_image
 import logging
 from pathlib import Path
-from json import dumps, loads, load, dump
-# from css import getIntegrant
 from sys import platform
 import traceback
 from threading import Lock
 from datetime import datetime
 import pytz
-import os
 import re
 import json
-from time import sleep
 from config import config
 
 # set up logging
-
 IP, PORT = config["WEBHOOK_APP_IP"], int(config["WEBHOOK_APP_PORT"])
 
 panamaTimeZone = pytz.timezone('America/Bogota')
@@ -35,23 +30,7 @@ whatsappWhiteList = ws_utils_path / "wsUtils/control/newContactsFound.txt"
 
 yeniredTequeños = ws_utils_path / "yenired publicidad/YENIRED TEQUEÑOS.jpg"
 yeniredLimpieza = ws_utils_path / "yenired publicidad/YENIRED LIMPIEZA.jpg"
-urlImageTequeños = "https://www.linkpicture.com/q/YENIRED-TEQUENOS.jpg"
-urlImageLimpieza = "https://www.linkpicture.com/q/YENIRED-LIMPIEZA.jpg"
 
-miguel_numero = "50760269392"
-mi_numero = "50763641778"
-test_room_group = "120363047630248137"
-yenired_numero = "50760283543"
-pysllanobonitoI =  "50761578280-1599012020"
-pysllanobonitoII = "50761578280-1610642594"
-groups_interact = [pysllanobonitoI, pysllanobonitoII]
-black_list = ["50767394785"]
-stories_broadcast = "status@broadcast"
-allowed_people = [mi_numero, miguel_numero]
-elio_gonzalez = "Elio Gonzalez"
-yenired_rico = "Yenired Rico"
-miguel_david = "Diguel David"
-allowed_instances = ["Yenired"]
 
 logging.basicConfig(filename=ws_utils_path / 'ws-messages.log', level=logging.INFO,
                     format='%(asctime)s %(message)s')
@@ -69,22 +48,59 @@ def random_messages():
 
     return f"*{listOfMessages[turno][0]}!*"
 
-
 app = Flask(__name__)
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
+
+class Instance:
+    _instances = {}
+
+    def __init__(self, name: str, number: str) -> None:
+        self._name = name
+        self._number = number
+        if name not in Instance._instances.items():
+            Instance._instances[name] = number
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def name(self, name: str):
+        self._name = name
+
+    @property
+    def number(self) -> str:
+        return self._number
+
+    @number.setter
+    def number(self, number: str):
+        self._number = number
+
+    @classmethod
+    def access_map(cls, name: str) -> str:
+        return cls._instances[name]
+
+
+# grupos
+test_room_group = Instance("test_room_group", "120363047630248137")
+pysllanobonitoI =  Instance("pysllanobonitoI", "50761578280-1599012020")
+pysllanobonitoII = Instance("pysllanobonitoII", "50761578280-1610642594")
+
+# personas
+elio_gonzalez = Instance("Elio", "50763641778")
+yenired_rico = Instance("Yenired", "50760283543")
+miguel_david = Instance("Miguel", "50760269392")
+gonsta_bot = Instance("GonstaBot", "50768600215")
+
+allowed_interact_bot = [elio_gonzalez.number, miguel_david.number]
+
 log_message  = Lock()
 in_process = False
 initiated_by = False
 flag = False
 countMessageGroup = 0
 firstStart = True
-
-instace_init = {
-    elio_gonzalez: "Elio",
-    yenired_rico: "Yenired",
-    miguel_david: "Miguel"
-}
 
 @app.route('/messages/upsert', methods=['POST'])
 def webhook():
@@ -113,15 +129,7 @@ def webhook():
             with log_message:
                 if not isFile:
                     logger.info(f"{chatType} : {userInstance} - {pushName}: {message}")
-            
-            if message == "/respond":
-                pass
-
-            if message == "/menu" and remoteJid in allowed_people:
-                
-                send_message(mi_numero, "This is the menu", userInstance)
-
-            # send message if pattern found
+        
             try:
                 if not isFile:
                     teque_combo_pattern = re.compile(r'(?i)(teque|c[o0]mb)[ñosod]?', re.IGNORECASE)
@@ -130,14 +138,16 @@ def webhook():
                             msg = str(f"{chatType} - {pushName} - {participant}: {message}")
                         else:
                             msg = str(f"{chatType} - {pushName} - {remoteJid}: {message}")
-                        send_message(mi_numero, msg, userInstance)
+
+                        send_message(elio_gonzalez.number, msg, userInstance)
+
             except TypeError:
                 logger.error(str(f"ERROR: wasReactionMessage:{wasReactionMessage}, isBroadcast:{isBroadcast}, chatType:{chatType}, pushName:{pushName}, participant:{participant}, message:{message}"))
                 logger.error(str(f"ERROR: wasReactionMessage:{wasReactionMessage}, isBroadcast:{isBroadcast}, chatType:{chatType}, pushName:{pushName}, remoteJid:{remoteJid}, message:{message}"))
                 logger.error(f"ERROR: {traceback.format_exc()}")
             
             # Ignore all incoming requests once the message is in process!
-            if userInstance in allowed_instances:
+            if userInstance == yenired_rico.name:
                 if flag: 
                         return "Received"
                 flag = True
@@ -149,9 +159,19 @@ def webhook():
                         firstStart = False
                         countMessageGroup = 0
                         logger.info("Ad in process!")
-                        send_image(pysllanobonitoI, yeniredTequeños, random_messages(), userInstance)
+                        send_image(pysllanobonitoI.number, yeniredTequeños, random_messages(), userInstance)
                 finally:
                     flag = False
+
+            # GonstaBot Responses Implementation 
+            if chatType == "Group" and participant in allowed_interact_bot and (userInstance == gonsta_bot.name):
+                if message == "/menu":         # group interactions
+                    send_message(remoteJid, "This is the menu", gonsta_bot.name, False)
+
+            # Auto responses to get info
+            if chatType == "Normal" and fromMe: 
+                if message == "/menu":         # individual interactions
+                    send_message(remoteJid, "This is the menu", userInstance, False)
 
         except Exception:
             logger.error(f"ERROR: {traceback.format_exc()}")
