@@ -1,9 +1,7 @@
 #!/bin/bash
 
-sleep 90
-
 # Create a new tmux session
-tmux new-session -d -s start_bot
+tmux new-session -d -s bot
 
 # Send the command to the tmux session
-tmux send-keys -t start_bot "python3 /home/vaccarieli/ws-gonsta-api/bot/bot.py" C-m
+tmux send-keys -t bot "python3 /home/vaccarieli/ws-gonsta-api/bot/bot.py" C-m
