@@ -49,7 +49,7 @@ export const handler_events = (userSocks: any, user: any, saveCreds: any, startS
             const {connection, lastDisconnect} = update;
             if (connection === "close") {
                 if ((lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut) {
-                    startSock();
+                    await startSock(user);
                 } else {
                     console.log("Connection closed. You are logged out.");
                 }
