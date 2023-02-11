@@ -6,13 +6,11 @@ import {store_data} from "./src/data";
 
 const startApp = async () => {
     store_data();
-    await startSock();
+    startSock();
 
     app.listen(config.APP_PORT, () => {
         console.log(`App listening on ${config.APP_IP}:${config.APP_PORT}`);
     });
 };
 
-(async () => {
-    await startApp();
-})();
+startApp();

@@ -16,7 +16,7 @@ const mediaTypes: {[index: string]: any} = {
     documentMessage: "document",
 };
 
-const messages_upsert = async (m: any, user: any) => {
+const messages_upsert = (m: any, user: any) => {
     if (config.WEBHOOK_ENABLED) {
         if (config.WEBHOOK_ALLOWED_EVENTS.includes("messages.upsert")) {
             const messages = m.messages[0];
@@ -36,20 +36,20 @@ const messages_upsert = async (m: any, user: any) => {
                 wasReactionMessage: messages.message?.reactionMessage ? true : false,
             };
 
-            await downloadMedia(m, webhookData, mediaTypes);
+            downloadMedia(m, webhookData, mediaTypes);
             sendWebhook(webhookData, config.WEBHOOK_URL);
         }
     }
 };
 
-export const handler_events = async (userSocks: any, user: any, saveCreds: any, startSock: any) => {
+export const handler_events = (userSocks: any, user: any, saveCreds: any, startSock: any) => {
     userSocks[user].ev.process(async (events: any) => {
         if (events["connection.update"]) {
             const update = events["connection.update"];
             const {connection, lastDisconnect} = update;
             if (connection === "close") {
                 if ((lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut) {
-                    await startSock();
+                    startSock();
                 } else {
                     console.log("Connection closed. You are logged out.");
                 }
@@ -66,7 +66,7 @@ export const handler_events = async (userSocks: any, user: any, saveCreds: any, 
         }
 
         if (events["messages.upsert"]) {
-            await messages_upsert(events["messages.upsert"], user);
+            messages_upsert(events["messages.upsert"], user);
         }
     });
 };

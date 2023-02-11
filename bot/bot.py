@@ -152,7 +152,7 @@ def webhook():
                         return "Received"
                 flag = True
                 try:
-                    if not fromMe and (pysllanobonitoI == remoteJid):
+                    if not fromMe and (pysllanobonitoI.number == remoteJid):
                         countMessageGroup+=1
 
                     if countMessageGroup == int(config["SEND_AD_EVERY_N_TIMES"]) or firstStart:
