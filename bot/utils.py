@@ -2,7 +2,7 @@ from wsmsg import send_message, send_image
 
 def handle_messages_tools(msgRecvd:str, remoteJid:str, instance:str):
 
-    message == False
+    message = False
     if msgRecvd == "/comandos":
         message = """/ejemplo
 /swcostos"""
