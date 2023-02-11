@@ -10,6 +10,7 @@ import pytz
 import re
 import json
 from config import config
+from utils import handle_messages_tools
 
 # set up logging
 IP, PORT = config["WEBHOOK_APP_IP"], int(config["WEBHOOK_APP_PORT"])
@@ -172,6 +173,9 @@ def webhook():
             if chatType == "Normal" and fromMe: 
                 if message == "/menu":         # individual interactions
                     send_message(remoteJid, "This is the menu", userInstance, False)
+            
+            if userInstance == elio_gonzalez.name:
+                handle_messages_tools(message, remoteJid, elio_gonzalez.name)
 
         except Exception:
             logger.error(f"ERROR: {traceback.format_exc()}")
