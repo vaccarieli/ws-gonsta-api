@@ -16,9 +16,6 @@ from utils import handle_messages_tools
 IP, PORT = config["WEBHOOK_APP_IP"], int(config["WEBHOOK_APP_PORT"])
 
 panamaTimeZone = pytz.timezone('America/Bogota')
-hhmmss = datetime.now(panamaTimeZone).strftime("%H:%M:%S")
-[hours, minutes, seconds] = [int(x) for x in hhmmss.split(':')]
-turno = "Mañana" if hours < 13 else "Tarde" if hours < 19 else "Noche"
 
 ws_utils_path = Path("/home/vaccarieli/files/") if platform != "win32" else Path("P:/Synology/")
 path_image_sent = ws_utils_path / "wsUtils/control/imageSent.txt"
@@ -39,11 +36,14 @@ logging.basicConfig(filename=ws_utils_path / 'ws-messages.log', level=logging.IN
 logger = logging.getLogger(__name__)
 
 def random_messages():
-    with open(tequeñosMessages, "r", encoding="utf-8") as file: 
+    hhmmss = datetime.now(panamaTimeZone).strftime("%H:%M:%S")
+    [hours, minutes, seconds] = [int(x) for x in hhmmss.split(':')]
+    turno = "Mañana" if hours < 13 else "Tarde" if hours < 19 else "Noche"
+    with open(tequeñosMessages, "r", encoding="utf-8") as file:
         listOfMessages = json.load(file)
         #Change order of message
         listOfMessages[turno].append(listOfMessages[turno].pop(0))
-        
+
     with open(tequeñosMessages, "w", encoding="utf-8") as file: 
         json.dump(listOfMessages, file, indent=4, ensure_ascii=False)
 
@@ -97,15 +97,13 @@ gonsta_bot = Instance("GonstaBot", "50768600215")
 allowed_interact_bot = [elio_gonzalez.number, miguel_david.number]
 
 log_message  = Lock()
-in_process = False
-initiated_by = False
 flag = False
 countMessageGroup = 0
 firstStart = True
 
 @app.route('/messages/upsert', methods=['POST'])
 def webhook():
-    global in_process, initiated_by, flag, countMessageGroup, firstStart
+    global flag, countMessageGroup, firstStart
     isFile = False
     if request.method == 'POST':
         request_json = request.json
