@@ -72,7 +72,42 @@ footerOfMessage = "Muchas Gracias!"
 message_chain = "Hola Veci Buen dia!¡Los tequeños recién hechos están aquí! 🔥 No te quedes sin probarlos, ofrecemos servicio de delivery durante todo el día, desde temprano hasta tarde para que puedas disfrutar de un desayuno, cena o merienda deliciosa en casa. ¡Aprovecha esta oportunidad y haz tu pedido ahora!"
 
 
-message_te = random_messages()
+#message_te = random_messages()
+
+#1. List all available groups and have them listed to make selection.
+
+def list_all_groups(selected_group: Any = None) -> str:
+    groups = group_list_all(user_instance)
+
+    if not selected_group:
+        instances_list = ""
+        for index, instance_id in enumerate(groups["data"], start=1):
+            instances_list += f'{index}) {groups["data"][instance_id]["subject"]}\n'
+        return instances_list
+
+    return [*groups["data"]][int(selected_group) - 1]
+
+#2. After making the selection have all the numbers printed having the admin listed first.
+
+def list_all_numbers_by_group(group_selection: str) -> any:
+    groups = group_list_all(user_instance)
+    numbers_list = ""
+    try:
+        participants = groups["data"][group_selection]["participants"]
+        admins_list = [p for p in participants if p["admin"]]
+        for admin in admins_list:
+            participants.remove(admin)
+            participants.insert(0, admin)
+
+        for index, participant in enumerate(participants, start=1):
+            numbers_list += f'{index}) {participant["id"].strip(idType["normalChat"])}\n'
+    except Exception:
+        return False
+    return numbers_list
+
+
+
+
 def sendAd(group_list):
     with open(path_image_sent, 'r', encoding='utf-8') as f: contacts_sent = [i.strip() for i in f.readlines()]
 

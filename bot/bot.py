@@ -1,5 +1,5 @@
 from flask import Flask, request
-from wsmsg import send_message, send_image
+from wsmsg import send_message, send_image, groupListAll
 import logging
 from pathlib import Path
 from sys import platform
@@ -11,6 +11,14 @@ import re
 import json
 from config import config
 from utils import handle_messages_tools
+
+idType = {
+  "normalChat": "@s.whatsapp.net",
+  "groupChat": "@g.us",
+  "broadCast": "@broadcast",
+  "story": "status@broadcast",
+}
+
 
 # set up logging
 IP, PORT = config["WEBHOOK_APP_IP"], int(config["WEBHOOK_APP_PORT"])
@@ -95,15 +103,48 @@ miguel_david = Instance("Miguel", "50760269392")
 gonsta_bot = Instance("GonstaBot", "50768600215")
 
 allowed_interact_bot = [elio_gonzalez.number, miguel_david.number]
+groups_read_contacts = [pysllanobonitoI.number, pysllanobonitoII.number]
 
 log_message  = Lock()
 flag = False
 countMessageGroup = 0
 firstStart = True
+in_process = False
+
+#1. List all available groups and have them listed to make selection.
+
+def list_all_groups(groups: dict, selected_group: any = None) -> str:
+
+    if not selected_group:
+        instances_list = ""
+        for index, instance_id in enumerate(groups["data"], start=1):
+            instances_list += f'{index}) {groups["data"][instance_id]["subject"]}\n'
+        return instances_list
+        
+    else:
+        return [*groups["data"]][int(selected_group) - 1]
+
+#2. After making the selection have all the numbers printed having the admin listed first.
+
+def list_all_numbers_by_group(groups: dict, group_selection: str) -> any:
+    numbers_list = ""
+    try:
+        participants = groups["data"][group_selection]["participants"]
+        admins_list = [p for p in participants if p["admin"]]
+        for admin in admins_list:
+            participants.remove(admin)
+            participants.insert(0, admin)
+
+        for index, participant in enumerate(participants, start=1):
+            numbers_list += f'{index}) {participant["id"].strip(idType["normalChat"])}\n'
+    except Exception as e:
+        print(e)
+        return False
+    return numbers_list
 
 @app.route('/messages/upsert', methods=['POST'])
 def webhook():
-    global flag, countMessageGroup, firstStart
+    global flag, countMessageGroup, firstStart, in_process
     isFile = False
     if request.method == 'POST':
         request_json = request.json
@@ -172,8 +213,29 @@ def webhook():
                 if message == "/menu":         # individual interactions
                     send_message(remoteJid, "This is the menu", userInstance, False)
             
-            if userInstance == elio_gonzalez.name:
-                handle_messages_tools(message, remoteJid, elio_gonzalez.name)
+            if fromMe and chatType == "Normal":
+                handle_messages_tools(message, remoteJid, userInstance)
+
+                if message == '/sendAds':
+                    pass
+                   # send_message(remoteJid, )
+
+                if message == '/listGroups' or in_process:
+                    groups = groupListAll(userInstance)
+                    if not in_process:
+                        group_list_msg = list_all_groups(groups)
+                        send_message(remoteJid, group_list_msg, userInstance, False)
+                        in_process = True
+                        
+                        
+                    elif in_process and len(message) <= 2:
+                        
+                        selection = list_all_groups(groups, message)
+                        msg_list = list_all_numbers_by_group(groups, selection)
+                        send_message(remoteJid, msg_list, userInstance, False)
+                        in_process = False
+                        
+
 
         except Exception:
             logger.error(f"ERROR: {traceback.format_exc()}")
