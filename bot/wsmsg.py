@@ -30,7 +30,7 @@ def send_message(phoneNumber, text, userKey, precense_typying=True):
         "precense_typying": precense_typying
     }
     data = {
-        "id": phoneNumber+idType["normalChat"] if len(phoneNumber)==11 else phoneNumber+idType["groupChat"],
+        "id": phoneNumber+idType["normalChat"] if len(phoneNumber) < 17 else phoneNumber+idType["groupChat"],
         "text": text
     }
     return post(f"{baseUrl}message/text", headers=headers, params=params, data=data).json()
