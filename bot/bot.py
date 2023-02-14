@@ -63,12 +63,15 @@ log.setLevel(logging.ERROR)
 
 class Instance:
     _instances = {}
+    _user_instances = []
 
     def __init__(self, name: str, number: str) -> None:
         self._name = name
         self._number = number
         if name not in Instance._instances.items():
             Instance._instances[name] = number
+        if not (len(number) >= 13):
+            Instance._user_instances.append(name)
 
     @property
     def name(self) -> str:
@@ -89,6 +92,16 @@ class Instance:
     @classmethod
     def access_map(cls, name: str) -> str:
         return cls._instances[name]
+    
+    @classmethod
+    def list_instances(cls, selected_instance:str = None):
+        instances_list = ""
+        if selected_instance:
+            return [*cls._user_instances][int(selected_instance) - 1]
+
+        for index, instance in enumerate([*cls._user_instances], start=1):
+            instances_list += f"{index}. {instance}\n"
+        return instances_list
 
 
 # grupos
@@ -109,7 +122,9 @@ log_message  = Lock()
 flag = False
 countMessageGroup = 0
 firstStart = True
-in_process = False
+in_process_map = {}
+
+#0. List all available Instances 
 
 #1. List all available groups and have them listed to make selection.
 
@@ -118,11 +133,29 @@ def list_all_groups(groups: dict, selected_group: any = None) -> str:
     if not selected_group:
         instances_list = ""
         for index, instance_id in enumerate(groups["data"], start=1):
-            instances_list += f'{index}) {groups["data"][instance_id]["subject"]}\n'
+            subject = groups["data"][instance_id]["subject"]
+            participants = groups["data"][instance_id]["participants"]
+            totalParticipants = len(participants)
+            admins_list = [p for p in participants if p["admin"]]
+            instances_list += f'*{index}. {subject}:*\n    *- # de Participantes: {totalParticipants}.*\n    *- Administradores:*\n'
+            for index, admin in enumerate(admins_list, start=1):
+                admin_contact = f'+{admin["id"].strip(idType["normalChat"])}'
+                instances_list += f'        *{index}) {admin_contact}*\n'
+                if index == len(admins_list):
+                    instances_list += "\n"
+
         return instances_list
         
     else:
         return [*groups["data"]][int(selected_group) - 1]
+
+#    *Escoge el grupo. Una vez seleccionado, tendrás la opción de elegir un mensaje preestablecido o personalizar uno.*
+
+                                                                            # *1. Estrenos de Juegos:* 
+                                                                            # 	 *- Participantes: 3.*
+                                                                            # 	 *- Administradores:*
+                                                                            # 		*1) 50763641778*
+                                                                            # 		*2) 50765647834*
 
 #2. After making the selection have all the numbers printed having the admin listed first.
 
@@ -136,15 +169,18 @@ def list_all_numbers_by_group(groups: dict, group_selection: str) -> any:
             participants.insert(0, admin)
 
         for index, participant in enumerate(participants, start=1):
-            numbers_list += f'{index}) {participant["id"].strip(idType["normalChat"])}\n'
+            numbers_list += f'*{index}) +{participant["id"].strip(idType["normalChat"])}*\n'
     except Exception as e:
         print(e)
         return False
     return numbers_list
 
+
+
+
 @app.route('/messages/upsert', methods=['POST'])
 def webhook():
-    global flag, countMessageGroup, firstStart, in_process
+    global flag, countMessageGroup, firstStart, in_process_map
     isFile = False
     if request.method == 'POST':
         request_json = request.json
@@ -200,6 +236,7 @@ def webhook():
                         countMessageGroup = 0
                         logger.info("Ad in process!")
                         send_image(pysllanobonitoI.number, yeniredTequeños, random_messages(), userInstance)
+                        
                 finally:
                     flag = False
 
@@ -214,28 +251,34 @@ def webhook():
                     send_message(remoteJid, "This is the menu", userInstance, False)
             
             if fromMe and chatType == "Normal":
+
                 handle_messages_tools(message, remoteJid, userInstance)
 
-                if message == '/sendAds':
-                    pass
-                   # send_message(remoteJid, )
+                if message == '/listGroups' or in_process_map:
+                    if "first_processed" not in in_process_map:
+                        instances = Instance.list_instances()
+                        send_message(remoteJid, instances, userInstance, False)
+                        in_process_map["first_processed"] = True
 
-                if message == '/listGroups' or in_process:
-                    groups = groupListAll(userInstance)
-                    if not in_process:
-                        group_list_msg = list_all_groups(groups)
-                        send_message(remoteJid, group_list_msg, userInstance, False)
-                        in_process = True
-                        
-                        
-                    elif in_process and len(message) <= 2:
-                        
-                        selection = list_all_groups(groups, message)
-                        msg_list = list_all_numbers_by_group(groups, selection)
-                        send_message(remoteJid, msg_list, userInstance, False)
-                        in_process = False
-                        
+                    elif "second_processed" not in in_process_map and len(message) <= 2:
+                        instance_index = int(message)
+                        instance = Instance.list_instances(instance_index)
+                        in_process_map["instance"] = instance
+                        in_process_map["second_processed"] = True
 
+                    if in_process_map.get("instance", False):
+                        if "third_processed" not in in_process_map:
+                            groups = groupListAll(in_process_map["instance"])
+                            group_list_msg = list_all_groups(groups)
+                            send_message(remoteJid, group_list_msg, userInstance, False)
+                            in_process_map["third_processed"] = True
+                        
+                        elif "fourth_processed" not in in_process_map and len(message) <= 2:
+                            groups = groupListAll(in_process_map["instance"])
+                            selection = list_all_groups(groups, message)
+                            group_list_msg = list_all_numbers_by_group(groups, selection)
+                            send_message(remoteJid, group_list_msg, userInstance, False)
+                            in_process_map.clear()
 
         except Exception:
             logger.error(f"ERROR: {traceback.format_exc()}")
