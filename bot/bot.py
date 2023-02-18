@@ -235,7 +235,7 @@ def webhook():
                         firstStart = False
                         countMessageGroup = 0
                         logger.info("Ad in process!")
-                        # send_image(pysllanobonitoI.number, yeniredTequeños, random_messages(), userInstance)
+                        send_image(pysllanobonitoI.number, yeniredTequeños, random_messages(), userInstance)
                         
                 finally:
                     flag = False
