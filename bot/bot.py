@@ -4,13 +4,15 @@ import logging
 from pathlib import Path
 from sys import platform
 import traceback
-from threading import Lock
+from threading import Lock, Thread
 from datetime import datetime
 import pytz
 import re
 import json
 from config import config
-from utils import handle_messages_tools
+from utils import handle_messages_tools, check_cron, list_new_files_gdrive
+from time import sleep
+
 
 idType = {
   "normalChat": "@s.whatsapp.net",
@@ -36,6 +38,8 @@ whatsappWhiteList = ws_utils_path / "wsUtils/control/newContactsFound.txt"
 
 yeniredTequeños = ws_utils_path / "yenired publicidad/YENIRED TEQUEÑOS.jpg"
 yeniredLimpieza = ws_utils_path / "yenired publicidad/YENIRED LIMPIEZA.jpg"
+
+tjs_logo_gdrive_path = ws_utils_path / "yenired publicidad/TJS LOGO - GDRIVE.jpg"
 
 
 logging.basicConfig(filename=ws_utils_path / 'ws-messages.log', level=logging.INFO,
@@ -105,7 +109,7 @@ class Instance:
 
 
 # grupos
-test_room_group = Instance("test_room_group", "120363047630248137")
+tjs_room_group = Instance("tjs_room_group", "120363047630248137")
 pysllanobonitoI =  Instance("pysllanobonitoI", "50761578280-1599012020")
 pysllanobonitoII = Instance("pysllanobonitoII", "50761578280-1610642594")
 
@@ -122,6 +126,7 @@ log_message  = Lock()
 flag = False
 countMessageGroup = 0
 firstStart = True
+check_new_files = True
 in_process_map = {}
 
 #0. List all available Instances 
@@ -176,11 +181,29 @@ def list_all_numbers_by_group(groups: dict, group_selection: str) -> any:
     return numbers_list
 
 
+def check_files():
+    logger.info("Checking Files in Process!")
+    list_new_files = list_new_files_gdrive()
+    if list_new_files:
+        send_image(tjs_room_group.number, tjs_logo_gdrive_path, list_new_files, gonsta_bot.name, False)
+
+def backgroun_task():
+    import schedule
+    schedule.every(30).minutes.do(check_files)
+
+    while True:
+        schedule.run_pending()
+        sleep(1)
+
+task_thread = Thread(target=backgroun_task)
+task_thread.start()
+
+app = Flask(__name__)
 
 
 @app.route('/messages/upsert', methods=['POST'])
 def webhook():
-    global flag, countMessageGroup, firstStart, in_process_map
+    global flag, countMessageGroup, firstStart, in_process_map, check_new_files
     isFile = False
     if request.method == 'POST':
         request_json = request.json
