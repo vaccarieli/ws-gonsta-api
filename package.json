@@ -29,6 +29,7 @@
     "openai": "^3.1.0",
     "qrcode-terminal": "^0.12.0",
     "rimraf": "^4.1.2",
-    "sharp": "^0.31.3"
+    "sharp": "^0.31.3",
+    "speaker": "^0.5.4"
   }
 }

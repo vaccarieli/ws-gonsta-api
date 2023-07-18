@@ -1,4 +1,4 @@
-import makeWASocket, {MessageRetryMap, makeCacheableSignalKeyStore, WASocket} from "@adiwajshing/baileys";
+import makeWASocket, {makeCacheableSignalKeyStore, WASocket} from "@adiwajshing/baileys";
 import {AuthenticationState} from "@adiwajshing/baileys/lib/Types/Auth";
 import {WAVersion} from "@adiwajshing/baileys/lib/Types/Socket";
 
@@ -7,7 +7,7 @@ import {logger} from "./data";
 import config from "./config";
 
 export const userSocks: {[key: string]: WASocket} = {};
-const msgRetryCounterMap: MessageRetryMap = {};
+// const msgRetryCounterMap: MessageRetryMap = {};
 
 export default async (
     version: WAVersion,
@@ -28,7 +28,7 @@ export default async (
                 // caching makes the store faster to send/recv messages
                 keys: makeCacheableSignalKeyStore(state.keys, logger),
             },
-            msgRetryCounterMap,
+            // msgRetryCounterMap,
             generateHighQualityLinkPreview: true,
             // implement to handle retries
             getMessage: async (key: any) => {
