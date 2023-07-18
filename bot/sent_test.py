@@ -1,4 +1,5 @@
 from wsmsg import send_message, send_image, groupListAll
+import requests
 
 
 re = send_image(
@@ -9,5 +10,3 @@ re = send_image(
     precense_typying=False,
     authorized_ids=["50763641778@s.whatsapp.net", "50760269392@s.whatsapp.net"],
 )
-
-print(re)
