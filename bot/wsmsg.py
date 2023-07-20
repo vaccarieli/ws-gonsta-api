@@ -65,6 +65,7 @@ def send_image(
     userKey=None,
     precense_typying=True,
     authorized_ids=None,
+    base64=False,
 ):
     import requests
     import base64
@@ -73,9 +74,14 @@ def send_image(
 
     params = {"key": userKey, "precense_typying": precense_typying}
 
-    with open(image, "rb") as im:
-        image_bytes = im.read()
-        encoded_image = base64.b64encode(image_bytes).decode("utf-8")
+    if not base64:
+        with open(image, "rb") as im:
+            image_bytes = im.read()
+            encoded_image = base64.b64encode(image_bytes).decode("utf-8")
+        media_file = (path.basename(image), encoded_image, guess_type(image)[0])
+    else:
+        encoded_image = image
+        media_file = ("test.png", encoded_image, "image/png")  # Fix this
 
     data = {
         "id": phoneNumber + idType["normalChat"]
@@ -84,7 +90,7 @@ def send_image(
         if phoneNumber != "broadcast"
         else idType["story"],
         "text": text,
-        "media_file": (path.basename(image), encoded_image, guess_type(image)[0]),
+        "media_file": media_file,
     }
 
     if authorized_ids:
