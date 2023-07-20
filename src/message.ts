@@ -32,7 +32,6 @@ const sendMediaFile = async (
         statusJidList: authorized_contacts,
     };
 
-    console.log(authorized_contacts);
     const data = await sock?.sendMessage(
         to,
         {

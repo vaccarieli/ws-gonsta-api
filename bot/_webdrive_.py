@@ -50,10 +50,10 @@ def handle_cookies(driver, save_cookies=False, load_cookies=False):
         print("Cookies were successfully loaded!")
 
 
-def _webdriver_():
+def webdriver():
     while True:
         try:
-            driver = Firefox(options=options)  # Specify the geckodriver path
+            driver = Firefox(options=options)
             return driver
         except Exception as e:
             print(e)
@@ -61,13 +61,12 @@ def _webdriver_():
 
 
 def download_image(driver, url) -> str:
-    try:
-        driver.get(url)
-        WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.TAG_NAME, "img"))
-        )
+    driver.get(url)
+    WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.TAG_NAME, "img"))
+    )
 
-        download_js = """
+    download_js = """
         fetch(arguments[0])
             .then(response => response.arrayBuffer())
             .then(buffer => {
@@ -77,18 +76,14 @@ def download_image(driver, url) -> str:
             })
             .catch(error => console.error('Failed to fetch the image:', error));
         """
-        driver.execute_script(download_js, url)
+    driver.execute_script(download_js, url)
 
-        # Wait for a moment to ensure JavaScript execution is complete
-        WebDriverWait(driver, 10).until(
-            lambda driver: driver.execute_script(
-                "return window.py_image_bytes !== undefined"
-            )
+    # Wait for a moment to ensure JavaScript execution is complete
+    WebDriverWait(driver, 10).until(
+        lambda driver: driver.execute_script(
+            "return window.py_image_bytes !== undefined"
         )
+    )
 
-        # Get the image bytes from the JavaScript variable
-        return driver.execute_script("return window.py_image_bytes;")
-
-    finally:
-        # Don't forget to close the driver when you're done
-        driver.close()
+    # Get the image bytes from the JavaScript variable
+    return driver.execute_script("return window.py_image_bytes;")
