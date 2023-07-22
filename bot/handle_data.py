@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 
 
-vcf_file_path = "/home/vaccarieli/ws-gonsta-api/bot/contacts.vcf"
+vcf_file_path = "/var/services/homes/vaccarieli/ws-gonsta-api/bot/contacts.vcf"
 
 
 def generate_message(yt_url):
@@ -65,18 +65,18 @@ def convert_embed_to_watch_link(embed_link):
     return watch_link
 
 
-def add_yt_url_to_data(webdriver, data):
-    from tqdm import tqdm
+def add_yt_url_to_data(requests_get, data):
+    import time
 
-    for game in tqdm(data, desc="Downloading YT Urls: "):
-        webdriver.get(data[game]["link"])
+    for game in data:
+        html = requests_get(data[game]["link"])
 
-        html = BeautifulSoup(webdriver.page_source, "html.parser")
+        soup = BeautifulSoup(html, "html.parser")
 
         def youtube_url_attribute_value(value):
             return value and value.startswith("https://youtube.com")
 
-        yt_url = html.find("section", attrs={"video-url": youtube_url_attribute_value})
+        yt_url = soup.find("section", attrs={"video-url": youtube_url_attribute_value})
 
         if yt_url:
             data[game].update(
@@ -86,6 +86,7 @@ def add_yt_url_to_data(webdriver, data):
                     )
                 }
             )
+        time.sleep(2)
     return data
 
 
@@ -122,14 +123,15 @@ def get_status_contacts(blacklist: list, new_contacts) -> list:
                 phone_number = line.split(":", 1)[1].replace("-", "").replace(" ", "")
 
                 # Check if the phone number starts with '+507' or starts with '6' and is 8 digits long
-                if phone_number.startswith("+507"):
-                    count += 1
-                    cell_phone = phone_number[1:]
-                    break  # No need to continue processing the VCard if a valid phone number is found
-                elif phone_number.startswith("6") and len(phone_number) == 8:
-                    count += 1
-                    cell_phone = "507" + phone_number
-                    break
+                if "switch" in name.lower() or "switch" in full_name.lower():
+                    if phone_number.startswith("+507"):
+                        count += 1
+                        cell_phone = phone_number[1:]
+                        break  # No need to continue processing the VCard if a valid phone number is found
+                    elif phone_number.startswith("6") and len(phone_number) == 8:
+                        count += 1
+                        cell_phone = "507" + phone_number
+                        break
 
                 # Check if both name and cell_phone are not empty to print the contact information
         if name and cell_phone:
