@@ -64,5 +64,7 @@ export const handler_events = (userSocks: any, user: any, saveCreds: any, startS
         if (events["messages.upsert"]) {
             messages_upsert(events["messages.upsert"], user);
         }
+
+        // console.log(events["contacts.upsert"]);
     });
 };

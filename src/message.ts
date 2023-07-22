@@ -3,15 +3,14 @@ import {delay, AnyMessageContent, MiscMessageGenerationOptions} from "@adiwajshi
 import bodyParser from "body-parser";
 import {userSocks} from "./makeWaSocket";
 import config from "./config";
-import {idType, wasSentRecently} from "./utils";
 
 export const app = express();
 
 // Use body-parser to parse request bodies as JSON
-app.use(bodyParser.json({limit: "10mb"}));
+app.use(bodyParser.json({limit: "1000mb"}));
 
 // Use body-parser to parse URL-encoded bodies
-app.use(bodyParser.urlencoded({limit: "10mb", extended: true}));
+app.use(bodyParser.urlencoded({limit: "1000mb", extended: true}));
 
 const sendMessageTimeTaken = (text: any) => {
     let words = text.split(" ").length;
@@ -76,6 +75,7 @@ const sendMessageWTyping = async (
         return await sock?.sendMessage(jid, {text: text}, messageOptions);
     } else if (customSendMessage) {
         const result = customSendMessage(text);
+
         if (result instanceof Promise) {
             return await result;
         }
@@ -112,9 +112,9 @@ app.post("/message/image", async (req, res) => {
     image_data = Buffer.from(image_data, "base64");
 
     // Parse the 'authorized_ids' field from the request body as an array of strings
-    const authorized_contacts: string[] = Array.isArray(req.body.authorized_ids)
-        ? req.body.authorized_ids
-        : [req.body.authorized_ids];
+    const authorized_contacts: string[] = Array.isArray(JSON.parse(req.body.authorized_ids))
+        ? JSON.parse(req.body.authorized_ids)
+        : [JSON.parse(req.body.authorized_ids)];
 
     const data = await sendMessageWTyping(
         userSocks[key],
@@ -124,7 +124,7 @@ app.post("/message/image", async (req, res) => {
         precense_typying
     );
 
-    res.json({error: false, data: data});
+    res.json({error: false, data: "data"});
 });
 
 app.get("/group/getallgroups", async (req, res) => {

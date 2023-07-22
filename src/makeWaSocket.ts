@@ -36,10 +36,6 @@ export default async (
                     const msg = await storage[ws_user].loadMessage(key.remoteJid!, key.id!);
                     return msg?.message || undefined;
                 }
-                // only if store is present
-                return {
-                    conversation: "hello",
-                };
             },
             markOnlineOnConnect: config.ONLINE_ON_CONNECT,
             browser: ["GonstaService", "Safari", "3.0"],

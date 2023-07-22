@@ -53,6 +53,7 @@ def send_message(
     }
     if authorized_ids:
         data.update({"authorized_ids": authorized_ids})
+
     return post(
         f"{baseUrl}message/text", headers=headers, params=params, data=data
     ).json()
@@ -69,6 +70,7 @@ def send_image(
 ):
     import requests
     import base64
+    import json
 
     headers = {}
 
@@ -94,11 +96,11 @@ def send_image(
     }
 
     if authorized_ids:
-        data.update({"authorized_ids": authorized_ids})
+        data.update({"authorized_ids": json.dumps(authorized_ids)})
 
     return requests.post(
         f"{baseUrl}message/image", headers=headers, data=data, params=params
-    ).json()
+    )
 
 
 def groupListAll(userKey):
