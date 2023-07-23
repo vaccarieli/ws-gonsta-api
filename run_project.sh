@@ -11,7 +11,9 @@ PYTHON_PATH="/bin/python3"
 
 YARN_PID=$!
 
-sleep 15
+echo "Sleeping for 30 seconds"
+sleep 30
+echo "Running Python Script"
 
 # # Execute the Python script
 "$PYTHON_PATH" "/var/services/homes/vaccarieli/ws-gonsta-api/bot/sent_test.py"

@@ -17,11 +17,14 @@ digital_contents = [
     "TV_Series_Seasons",
 ]
 
-url_website = "https://www.releases.com/l/Switch_Games"
-
+url_website = f"https://www.releases.com/l/{digital_contents[0]}"
 
 blacklist = []
-new_contacts = ["50760283543@s.whatsapp.net", "584127924055@s.whatsapp.net"   "50763641778@s.whatsapp.net", ]
+new_contacts = [
+    "50760283543@s.whatsapp.net",
+    "584127924055@s.whatsapp.net",
+    "50763641778@s.whatsapp.net",
+]
 status_contacts = get_status_contacts(blacklist, new_contacts)
 
 # Get data from the main page and organize it into a dictionary.
