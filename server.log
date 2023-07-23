@@ -1,0 +1,25 @@
+yarn run v1.22.19
+$ ts-node main.ts
+connection update {
+  connection: 'connecting',
+  receivedPendingNotifications: false,
+  qr: undefined
+}
+Welcome! Elio!
+App listening on 192.168.1.144:3326
+connection update { isOnline: false }
+connection update { connection: 'open' }
+connection update { receivedPendingNotifications: true }
+node[26185]: ../src/node.cc:664:void node::ResetStdio(): Assertion `!(err != 0) || (err == -1 && (*__errno_location ()) == 1)' failed.
+Node.js[26169]: ../src/node.cc:664:void node::ResetStdio(): Assertion `!(err != 0) || (err == -1 && (*__errno_location ()) == 1)' failed.
+ 1: 0x559582a25a00 node::Abort() [node]
+ 2: 0x559582a25a83  [node]
+ 3: 0x5595829de77f  [node]
+ 4: 0x7fa98653fb34  [/lib64/libc.so.6]
+ 5: 0x7fa98653fbda  [/lib64/libc.so.6]
+ 6: 0x559582967d10 node::DefaultProcessExitHandler(node::Environment*, int) [node]
+ 7: 0x5595829abb24 node::Environment::Exit(int) [node]
+ 8: 0x559582c7da17  [node]
+ 9: 0x559582c7f06f v8::internal::Builtin_HandleApiCall(int, unsigned long*, v8::internal::Isolate*) [node]
+10: 0x5595835df5f9  [node]
+timeout: the monitored command dumped core
