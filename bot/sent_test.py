@@ -1,4 +1,4 @@
-from wsmsg import send_image, send_message, requests_get
+from wsmsg import send_image, requests_get
 from handle_data import (
     extract_main_data,
     add_yt_url_to_data,
@@ -7,7 +7,6 @@ from handle_data import (
 )
 import time
 
-# from upscalingImage import super_resolution
 
 digital_contents = [
     "Switch_Games",
