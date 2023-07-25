@@ -6,11 +6,34 @@ import config from "./config";
 
 export const app = express();
 
+const apiUrl = "http://172.17.0.2:9000/upscale_image";
+
 // Use body-parser to parse request bodies as JSON
 app.use(bodyParser.json({limit: "50mb"}));
 
 // Use body-parser to parse URL-encoded bodies
 app.use(bodyParser.urlencoded({limit: "50mb", extended: true}));
+
+async function postBase64Image(url: string, base64Image: string): Promise<any> {
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json", // Replace with the appropriate content type
+            },
+            body: JSON.stringify({image: base64Image}),
+        });
+
+        if (!response.ok) {
+            throw new Error("Network response was not ok.");
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Error while making POST request:", error);
+        return null;
+    }
+}
 
 const sendMessageTimeTaken = (text: any) => {
     let words = text.split(" ").length;
@@ -37,11 +60,24 @@ const download_image_base64 = async (image_url: string): Promise<[string, Buffer
         }
         const buffer = await response.arrayBuffer();
         const uintArray = new Uint8Array(buffer);
-        const image_data = Buffer.from(uintArray); // No need for type assertion
+        const byteArray = Array.from(uintArray);
+        const base64String = btoa(String.fromCharCode.apply(null, byteArray));
         const extension = get_url_ext(image_url);
+        const image_data = Buffer.from(uintArray); // Original Image Data
+
+        const new_image_data = await postBase64Image(apiUrl, base64String)
+            .then((response) => {
+                const uintArray = new Uint8Array(
+                    Array.from(atob(response["upscaled_image"]), (char) => char.charCodeAt(0))
+                );
+                return Buffer.from(uintArray);
+            })
+            .catch((error) => {
+                throw error;
+            });
 
         // Return an array with the three values to be destructured
-        return [`image.${extension}`, image_data, mimeTypes[extension]];
+        return [`image.${extension}`, new_image_data, mimeTypes[extension]];
     } catch (error) {
         console.error("Failed to fetch the image:", error);
         throw error; // Rethrow the error so the calling code can handle it if needed

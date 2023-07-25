@@ -17,7 +17,7 @@ digital_contents = [
     "TV_Series_Seasons",
 ]
 
-url_website = f"https://www.releases.com/l/{digital_contents[0]}"
+url_website = f"https://www.releases.com/l/Switch_Games"
 
 blacklist = []
 new_contacts = [

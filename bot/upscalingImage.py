@@ -8,64 +8,54 @@ from cv2 import (
 import numpy
 import base64
 import io
+from flask import Flask, request, jsonify
 
-MODELS_PATH = "ws-gonsta-api/bot/models CV2"
+app = Flask(__name__)
+
+MODELS_PATH = "/models CV2"
 
 extension = "jpg"
 
 
-# def super_resolution(
-#     base64_image,
-#     width=1080,
-#     height=1920,
-#     method="espcn",
-#     ratio=4,
-# ):
-#     image_bufferIO = io.BytesIO(base64.b64decode(base64_image))
-#     cv_image = imdecode(numpy.frombuffer(image_bufferIO.getbuffer(), numpy.uint8), -1)
+def super_resolution(
+    base64_image,
+    width=1218,
+    height=1572,
+    method="espcn",
+    ratio=4,
+):
+    image_bufferIO = io.BytesIO(base64.b64decode(base64_image))
 
-#     sr = dnn_superres.DnnSuperResImpl_create()
-#     path = f"{MODELS_PATH}/{method}_x{ratio}.pb"
-#     sr.readModel(path)
-#     sr.setModel(
-#         method, ratio
-#     )  # set the model by passing the value and the upsampling ratio
-#     result = sr.upsample(cv_image)  # upscale the input image
+    cv_image = imdecode(numpy.frombuffer(image_bufferIO.getbuffer(), numpy.uint8), -1)
 
-#     resized = resize(result, (width, height), interpolation=INTER_AREA)
+    sr = dnn_superres.DnnSuperResImpl_create()
+    path = f"{MODELS_PATH}/{method}_x{ratio}.pb"
+    sr.readModel(path)
+    sr.setModel(
+        method, ratio
+    )  # set the model by passing the value and the upsampling ratio
+    result = sr.upsample(cv_image)  # upscale the input image
 
-#     _, im_buf_arr = imencode(f".{extension}", resized)
+    resized = resize(result, (width, height), interpolation=INTER_AREA)
 
-#     return base64.b64encode(im_buf_arr.tobytes())
+    _, im_buf_arr = imencode(f".{extension}", resized)
 
-
-import base64
-import io
-import cv2
-import numpy as np
-import tensorflow as tf
-
-# Load the pre-trained EDSR model
-model = tf.keras.models.load_model("path_to_pretrained_model")
+    return base64.b64encode(im_buf_arr.tobytes()).decode("utf-8")
 
 
-def super_resolution(base64_image, width=1080, height=1920, ratio=4):
-    # Decode base64 image data and load it into a numpy array
-    image_data = base64.b64decode(base64_image)
-    nparr = np.frombuffer(image_data, np.uint8)
-    cv_image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+@app.route("/upscale_image", methods=["POST"])
+def handle_post_request():
+    data = request.json
 
-    # Preprocess the image (normalize, resize, etc.) if needed
-    # For example, you can use cv2.resize() to resize the image before super-resolution
+    if "image" in data:
+        response = {
+            "message": "Image upscaling successful!",
+            "upscaled_image": super_resolution(data["image"]),
+        }
+        return jsonify(response), 200
+    else:
+        return jsonify({"error": "Invalid data format"}), 400
 
-    # Perform super-resolution on the input image using the loaded model
-    upscaled_image = model.predict(np.expand_dims(cv_image, axis=0))
 
-    # Resize the upscaled image to the desired dimensions
-    resized_image = cv2.resize(
-        upscaled_image.squeeze(), (width, height), interpolation=cv2.INTER_AREA
-    )
-
-    # Encode the resized image data to base64 and return
-    _, im_buf_arr = cv2.imencode(".jpg", resized_image)
-    return base64.b64encode(im_buf_arr.tobytes())
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=9000)
