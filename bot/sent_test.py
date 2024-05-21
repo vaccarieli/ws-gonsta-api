@@ -1,4 +1,4 @@
-from wsmsg import send_image, requests_get, send_message
+from wsmsg import send_image, requests_get, send_message, send_message_vid
 from handle_data import (
     extract_main_data,
     add_yt_url_to_data,
@@ -19,15 +19,24 @@ digital_contents = [
 url_website = f"https://www.releases.com/l/Switch_Games"
 
 blacklist = []
-new_contacts = [
-    "50760283543@s.whatsapp.net",
-    "584127924055@s.whatsapp.net",
-    "50763641778@s.whatsapp.net",
-]
+new_contacts = []
 
-send_message("584246447397", "HELLO", "elio", False)
+status_contacts = get_status_contacts(blacklist, new_contacts, ["switch", "wii", "3ds"])
 
-# status_contacts = get_status_contacts(blacklist, new_contacts)
+import time
+
+text = ""
+send_message_vid("584246447397", "/home/vaccarieli/Downloads/test.mp4", text, "elio", True)
+
+for contact in status_contacts:
+    print(contact)
+    send_message("584246447397", "HELLO", "elio", False)
+    time.sleep(1)
+    
+
+
+
+
 
 # # Get data from the main page and organize it into a dictionary.
 # data = extract_main_data(requests_get(url_website))

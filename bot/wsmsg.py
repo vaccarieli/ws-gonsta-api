@@ -59,6 +59,29 @@ def send_message(
     ).json()
 
 
+def send_message_vid(
+    phoneNumber, video_path, text, userKey, precense_typying=True, authorized_ids=None
+):
+    headers = {}
+
+    params = {"key": userKey, "precense_typying": precense_typying}
+    data = {
+        "id": phoneNumber + idType["normalChat"]
+        if ((len(phoneNumber) >= 10 and len(phoneNumber) <= 12) and phoneNumber != "broadcast" and "-" not in phoneNumber)
+        else phoneNumber + idType["groupChat"]
+        if phoneNumber != "broadcast"
+        else idType["story"],
+        "text": text,
+        "video_path": video_path
+    }
+    if authorized_ids:
+        data.update({"authorized_ids": authorized_ids})
+
+    return post(
+        f"{baseUrl}message/video", headers=headers, params=params, data=data
+    ).json()
+
+
 def send_image(
     phoneNumber,
     image,
@@ -86,13 +109,11 @@ def send_image(
 
     data = {
         "id": phoneNumber + idType["normalChat"]
-        if (len(phoneNumber) == 11 and phoneNumber != "broadcast")
+        if ((len(phoneNumber) >= 10 and len(phoneNumber) <= 12) and phoneNumber != "broadcast" and "-" not in phoneNumber)
         else phoneNumber + idType["groupChat"]
         if phoneNumber != "broadcast"
         else idType["story"],
         "text": text,
-        "media_file": media_file,
-        "url_image": url_image,
     }
 
     if authorized_ids:

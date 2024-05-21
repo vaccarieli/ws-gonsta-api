@@ -3,6 +3,7 @@ import {delay, AnyMessageContent, MiscMessageGenerationOptions} from "@adiwajshi
 import bodyParser from "body-parser";
 import {userSocks} from "./makeWaSocket";
 import config from "./config";
+import fs from "fs";
 
 export const app = express();
 
@@ -114,6 +115,7 @@ const sendMessageWTyping = async (
     sock: any,
     jid: string,
     text: AnyMessageContent,
+    video_path: string | null,
     customSendMessage: ((...args: any[]) => Promise<void>) | null = null,
     precense_typying: boolean = true,
     authorized_contacts: string[] = []
@@ -130,16 +132,32 @@ const sendMessageWTyping = async (
         await sock.sendPresenceUpdate("paused", jid);
     }
 
-    if (!customSendMessage && jid != "status@broadcast") {
+    if (video_path) {
+        return await sock?.sendMessage(
+            jid, 
+            { 
+                video: fs.readFileSync(video_path), 
+                mimetype: 'video/mp4',
+                caption: text,
+            }
+        )
+    }
+    
+    else if (!customSendMessage && jid != "status@broadcast") {
         return await sock?.sendMessage(jid, {text: text});
-    } else if (jid == "status@broadcast" && !customSendMessage) {
+
+    } 
+    
+    else if (jid == "status@broadcast" && !customSendMessage) {
         const messageOptions: MiscMessageGenerationOptions = {
             backgroundColor: "#315575",
             font: 3,
             statusJidList: authorized_contacts,
         };
         return await sock?.sendMessage(jid, {text: text}, messageOptions);
-    } else if (customSendMessage) {
+    } 
+    
+    else if (customSendMessage) {
         const result = customSendMessage(text);
 
         if (result instanceof Promise) {
@@ -163,11 +181,13 @@ app.post("/message/text", async (req: any, res: any) => {
         jid,
         req.body.text,
         null,
+        null,
         precense_typying,
         authorized_contacts
     );
     res.json({error: false, data: response});
 });
+
 
 app.post("/message/image", async (req, res) => {
     const key = String(req.query.key);
@@ -194,11 +214,34 @@ app.post("/message/image", async (req, res) => {
         userSocks[key],
         id,
         text,
+        null,
         () => sendMediaFile(userSocks[key], id, image_data, mimetype, image_name, text, authorized_contacts),
         precense_typying
     );
 
     res.json({error: false, data: data});
+});
+
+app.post("/message/video", async (req: any, res: any) => {
+    const key = req.query.key;
+    const precense_typying = JSON.parse(String(req.query.precense_typying).toLowerCase());
+    const jid = req.body.id;
+
+    // Parse the 'authorized_ids' field from the request body as an array of strings
+    const authorized_contacts: string[] = Array.isArray(req.body.authorized_ids)
+        ? req.body.authorized_ids
+        : [req.body.authorized_ids];
+
+    const response = await sendMessageWTyping(
+        userSocks[key],
+        jid,
+        req.body.text,
+        req.body.video_path,
+        null,
+        precense_typying,
+        authorized_contacts
+    );
+    res.json({error: false, data: response});
 });
 
 app.get("/group/getallgroups", async (req, res) => {
