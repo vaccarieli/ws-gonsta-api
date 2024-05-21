@@ -45,7 +45,7 @@ def send_message(
     params = {"key": userKey, "precense_typying": precense_typying}
     data = {
         "id": phoneNumber + idType["normalChat"]
-        if (len(phoneNumber) == 11 and phoneNumber != "broadcast")
+        if ((len(phoneNumber) >= 10 and len(phoneNumber) <= 12) and phoneNumber != "broadcast" and "-" not in phoneNumber)
         else phoneNumber + idType["groupChat"]
         if phoneNumber != "broadcast"
         else idType["story"],

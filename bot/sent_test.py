@@ -1,4 +1,4 @@
-from wsmsg import send_image, requests_get
+from wsmsg import send_image, requests_get, send_message
 from handle_data import (
     extract_main_data,
     add_yt_url_to_data,
@@ -24,32 +24,35 @@ new_contacts = [
     "584127924055@s.whatsapp.net",
     "50763641778@s.whatsapp.net",
 ]
-status_contacts = get_status_contacts(blacklist, new_contacts)
 
-# Get data from the main page and organize it into a dictionary.
-data = extract_main_data(requests_get(url_website))
-print("Step 1 Done...")
+send_message("584246447397", "HELLO", "elio", False)
 
-data = add_yt_url_to_data(requests_get, data)
-print("Step 2 Done...")
+# status_contacts = get_status_contacts(blacklist, new_contacts)
 
-for key, value in data.items():
-    game = key
-    yt_url = data[game].get("yt_link", None)
-    if not yt_url:
-        continue
-    image_url = data[game]["Image"]
-    message = generate_message(yt_url)
+# # Get data from the main page and organize it into a dictionary.
+# data = extract_main_data(requests_get(url_website))
+# print("Step 1 Done...")
 
-    re = send_image(
-        phoneNumber="broadcast",
-        image=image_url,
-        text=message,
-        userKey="Elio",
-        precense_typying=False,
-        authorized_ids=status_contacts,
-        url_image=True,
-    )
+# data = add_yt_url_to_data(requests_get, data)
+# print("Step 2 Done...")
 
-    print(f"Status {game} was sent!")
-    time.sleep(2)
+# for key, value in data.items():
+#     game = key
+#     yt_url = data[game].get("yt_link", None)
+#     if not yt_url:
+#         continue
+#     image_url = data[game]["Image"]
+#     message = generate_message(yt_url)
+
+#     re = send_image(
+#         phoneNumber="broadcast",
+#         image=image_url,
+#         text=message,
+#         userKey="Elio",
+#         precense_typying=False,
+#         authorized_ids=status_contacts,
+#         url_image=True,
+#     )
+
+#     print(f"Status {game} was sent!")
+#     time.sleep(2)
