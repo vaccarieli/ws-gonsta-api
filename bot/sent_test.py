@@ -25,17 +25,33 @@ status_contacts = get_status_contacts(blacklist, new_contacts, ["switch", "wii",
 
 import time
 
-text = ""
-send_message_vid("584246447397", "/home/vaccarieli/Downloads/test.mp4", text, "elio", True)
+text = "Hola como estas? Soy Elio quien te instalo los juegos en tu Nintendo Switch. Cambie de teléfono y no pude mantener mi otro contacto por no estar en el País, así que me pueden contactar a este número. Saludos."
+# send_message_vid(
+#   "584246447397", "/home/vaccarieli/Downloads/test.mp4", text, "elio", True
+# )
+
+contacts_sent_path = (
+    "/home/vaccarieli/Projects/ws-gonsta-api/bot/track_sent_contacts.txt"
+)
+
+with open(
+    contacts_sent_path,
+    "r",
+    encoding="utf-8",
+) as file:
+    contacts_sent = [i.strip() for i in file.readlines()]
 
 for contact in status_contacts:
-    print(contact)
-    send_message("584246447397", "HELLO", "elio", False)
-    time.sleep(1)
-    
-
-
-
+    if contact not in contacts_sent:
+        print("Message sent to: " + contact)
+        send_message(contact, text, "elio", False)
+        with open(
+            contacts_sent_path,
+            "a",
+            encoding="utf-8",
+        ) as file:
+            file.write(contact + "\n")
+        time.sleep(5)
 
 
 # # Get data from the main page and organize it into a dictionary.

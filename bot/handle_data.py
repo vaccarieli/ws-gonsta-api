@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 
 
-vcf_file_path = "/home/vaccarieli/ws-gonsta-api/bot/contacts.vcf"
+vcf_file_path = "/home/vaccarieli/Projects/ws-gonsta-api/bot/contacts.vcf"
 
 
 def generate_message(yt_url):
@@ -64,7 +64,10 @@ def convert_embed_to_watch_link(embed_link):
     ).replace("?autoplay=1", "")
     return watch_link
 
+
 import pathlib
+
+
 def add_yt_url_to_data(requests_get, data):
     import time
 
@@ -88,7 +91,10 @@ def add_yt_url_to_data(requests_get, data):
             )
         time.sleep(2)
     return data
+
+
 import os
+
 
 def get_status_contacts(blacklist: list, new_contacts, filter_list: list) -> list:
     contacts = []
@@ -99,7 +105,7 @@ def get_status_contacts(blacklist: list, new_contacts, filter_list: list) -> lis
 
     # Split the VCF data into individual VCard entries
     vcards = vcf_data.strip().split("END:VCARD\n")
-    os.remove("/home/vaccarieli/ws-gonsta-api/bot/contacts_final.vcf")
+    os.remove("/home/vaccarieli/Projects/ws-gonsta-api/bot/contacts_final.vcf")
 
     # Process each VCard entry
     for vcard in vcards:
@@ -111,14 +117,20 @@ def get_status_contacts(blacklist: list, new_contacts, filter_list: list) -> lis
         cell_phone = ""
 
         for line in lines:
-            with open("/home/vaccarieli/ws-gonsta-api/bot/contacts_final.vcf", "a", encoding="utf-8") as file:
+            with open(
+                "/home/vaccarieli/Projects/ws-gonsta-api/bot/contacts_final.vcf",
+                "a",
+                encoding="utf-8",
+            ) as file:
                 if line.startswith("TEL;TYPE="):
-                    phone_number = line.split(":", 1)[1].replace("-", "").replace(" ", "")
+                    phone_number = (
+                        line.split(":", 1)[1].replace("-", "").replace(" ", "")
+                    )
                     if len(phone_number) == 8:
                         phone_number = "+507" + phone_number
-                        file.write("TEL;TYPE=CELL:" + phone_number + "\n") 
+                        file.write("TEL;TYPE=CELL:" + phone_number + "\n")
                     else:
-                        file.write("TEL;TYPE=CELL:" + phone_number + "\n") 
+                        file.write("TEL;TYPE=CELL:" + phone_number + "\n")
                 else:
                     file.write(line + "\n")
                     if "CATEGORIES" in line:
@@ -135,8 +147,11 @@ def get_status_contacts(blacklist: list, new_contacts, filter_list: list) -> lis
         for line in lines:
             if line.startswith("TEL;TYPE="):
                 # Check if the phone number starts with '+507' or starts with '6' and is 8 digits long
-                if (any(keyword for keyword in filter_list if keyword in name.lower()) or
-                any(keyword for keyword in filter_list if keyword in full_name.lower())):
+                if any(
+                    keyword for keyword in filter_list if keyword in name.lower()
+                ) or any(
+                    keyword for keyword in filter_list if keyword in full_name.lower()
+                ):
                     if phone_number.startswith("+507"):
                         count += 1
                         cell_phone = phone_number[1:]
