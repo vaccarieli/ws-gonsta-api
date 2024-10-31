@@ -1,7 +1,9 @@
 from bs4 import BeautifulSoup
+from pathlib import Path
 
+main_project_path = Path("C:/Users/elios/Desktop/ws-gonsta-api")
 
-vcf_file_path = "/home/vaccarieli/Projects/ws-gonsta-api/bot/contacts.vcf"
+vcf_file_path = main_project_path / "bot/contacts.vcf"
 
 
 def generate_message(yt_url):
@@ -105,7 +107,7 @@ def get_status_contacts(blacklist: list, new_contacts, filter_list: list) -> lis
 
     # Split the VCF data into individual VCard entries
     vcards = vcf_data.strip().split("END:VCARD\n")
-    os.remove("/home/vaccarieli/Projects/ws-gonsta-api/bot/contacts_final.vcf")
+    os.remove(vcf_file_path)
 
     # Process each VCard entry
     for vcard in vcards:
@@ -118,7 +120,7 @@ def get_status_contacts(blacklist: list, new_contacts, filter_list: list) -> lis
 
         for line in lines:
             with open(
-                "/home/vaccarieli/Projects/ws-gonsta-api/bot/contacts_final.vcf",
+                vcf_file_path,
                 "a",
                 encoding="utf-8",
             ) as file:
