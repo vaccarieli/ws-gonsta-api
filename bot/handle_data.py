@@ -5,6 +5,8 @@ main_project_path = Path("C:/Users/elios/Desktop/ws-gonsta-api")
 
 vcf_file_path = main_project_path / "bot/contacts.vcf"
 
+vcf_file_path_final = main_project_path / "bot/contacts_final.vcf"
+
 
 def generate_message(yt_url):
     return f"""🎮 ¡Disponible Hoy! ¡Escribeme Ya!🕹
@@ -101,13 +103,13 @@ import os
 def get_status_contacts(blacklist: list, new_contacts, filter_list: list) -> list:
     contacts = []
     count = 0
+    
     with open(vcf_file_path, "r", encoding="utf-8") as vcf_file:
         # Read the entire content of the VCF file
         vcf_data = vcf_file.read()
 
     # Split the VCF data into individual VCard entries
     vcards = vcf_data.strip().split("END:VCARD\n")
-    os.remove(vcf_file_path)
 
     # Process each VCard entry
     for vcard in vcards:
@@ -120,7 +122,7 @@ def get_status_contacts(blacklist: list, new_contacts, filter_list: list) -> lis
 
         for line in lines:
             with open(
-                vcf_file_path,
+                vcf_file_path_final,
                 "a",
                 encoding="utf-8",
             ) as file:

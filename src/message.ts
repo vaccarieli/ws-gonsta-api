@@ -137,7 +137,6 @@ const sendMessageWTyping = async (
             jid, 
             { 
                 video: fs.readFileSync(video_path), 
-                mimetype: 'video/mp4',
                 caption: text,
             }
         )
