@@ -1,4 +1,4 @@
-from wsmsg import send_image, requests_get, send_message, send_message_vid
+from wsmsg import send_image, send_message, send_message_vid
 from handle_data import (
     get_status_contacts, MessageGenerator
 )
@@ -8,7 +8,6 @@ from pathlib import Path
 import random
 import time
 from tqdm import tqdm
-import os
 
 main_project_path = Path("C:/Users/elios/Desktop/ws-gonsta-api")
 
@@ -74,75 +73,88 @@ with open(
 ) as file:
     contacts_sent = [i.strip() for i in file.readlines()]
 
-############################/////////////////////////////////############################/////////////////////////////////
-
-# contacts_remaining = 0
-# for contact in status_contacts:
-#     wait_time = random.randint(30, 49)
-#     if contact not in contacts_sent:
-#         print("Message sent to: " + contact, "Remaing contacts to send: ", abs(len(status_contacts) - contacts_remaining))
-#         send_message(contact, messages[wait_time], "elio", False)
-#         with open(
-#             contacts_sent_path,
-#             "a",
-#             encoding="utf-8",
-#         ) as file:
-#             file.write(contact + "\n")
-#         time.sleep(wait_time)
-#     contacts_remaining +=1
 
 ############################/////////////////////////////////############################/////////////////////////////////
 
-contacts_remaining = 0
-total_contacts = len(status_contacts)
+def send_ads_messages():
 
-# Initialize the progress bar
-progress_bar = tqdm(status_contacts, desc="Processing contacts", unit="contact", initial=1)
+    contacts_remaining = 0
+    for contact in status_contacts:
+        wait_time = random.randint(30, 49)
+        if contact not in contacts_sent:
+            print("Message sent to: " + contact, "Remaing contacts to send: ", abs(len(status_contacts) - contacts_remaining))
+            send_message(contact, messages[wait_time], "elio", False)
+            with open(
+                contacts_sent_path,
+                "a",
+                encoding="utf-8",
+            ) as file:
+                file.write(contact + "\n")
+            time.sleep(wait_time)
+        contacts_remaining +=1
 
-for contact in progress_bar:
-    wait_time = random.randint(30, 49)
-    
-    if contact not in contacts_sent:
-        send_message_vid(
-            contact, "C:/Users/elios/Desktop/Promo Instalacion.mp4", mensajes_promocionales[wait_time], "elio", True
+############################/////////////////////////////////############################/////////////////////////////////
+
+def send_ads_vids():
+
+    contacts_remaining = 0
+
+    # Initialize the progress bar
+    progress_bar = tqdm(status_contacts, desc="Processing contacts", unit="contact", initial=1)
+
+    for contact in progress_bar:
+        wait_time = random.randint(30, 49)
+        
+        if contact not in contacts_sent:
+            send_message_vid(
+                contact, "C:/Users/elios/Desktop/Promo Instalacion.mp4", mensajes_promocionales[wait_time], "elio", True
+            )
+            
+            # Append contact to the file
+            with open(contacts_sent_path, "a", encoding="utf-8") as file:
+                file.write(contact + "\n")
+            
+            # Update contacts remaining
+            contacts_remaining += 1
+
+            # Update the progress bar description with the latest contact and remaining count
+            progress_bar.set_description(f"Message sent to: {contact}")
+
+            time.sleep(wait_time + 60)
+
+    # Close the progress bar
+    progress_bar.close()
+
+############################/////////////////////////////////############################/////////////////////////////////
+
+def send_broadcast_releases():
+    data = extract_data()
+    message_gen = MessageGenerator()
+
+    for key, value in data.items():
+        game = key
+        yt_url = data[game].get("Youtube URL", None)
+        base64_image = data[game]["Base64 Image"]
+        
+        # Generate the appropriate message based on URL availability
+        message = message_gen.generate_message(yt_url)
+        
+        re = send_image(
+            phoneNumber="broadcast",
+            image=base64_image,
+            text=message,
+            userKey="elio",
+            precense_typying=False,
+            authorized_ids=[i + "@s.whatsapp.net" for i in status_contacts],
+            url_image=False,
         )
-        
-        # Append contact to the file
-        with open(contacts_sent_path, "a", encoding="utf-8") as file:
-            file.write(contact + "\n")
-        
-        # Update contacts remaining
-        contacts_remaining += 1
+        print(f"Status {game} was sent!")
+        time.sleep(2)
 
-        # Update the progress bar description with the latest contact and remaining count
-        progress_bar.set_description(f"Message sent to: {contact}")
 
-        time.sleep(wait_time + 60)
 
-# Close the progress bar
-progress_bar.close()
+# send_ads_messages()
 
-############################/////////////////////////////////############################/////////////////////////////////
+send_ads_vids()
 
-# data = extract_data()
-# message_gen = MessageGenerator()
-
-# for key, value in data.items():
-#     game = key
-#     yt_url = data[game].get("Youtube URL", None)
-#     base64_image = data[game]["Base64 Image"]
-    
-#     # Generate the appropriate message based on URL availability
-#     message = message_gen.generate_message(yt_url)
-    
-#     re = send_image(
-#         phoneNumber="broadcast",
-#         image=base64_image,
-#         text=message,
-#         userKey="elio",
-#         precense_typying=False,
-#         authorized_ids=[i + "@s.whatsapp.net" for i in status_contacts],
-#         url_image=False,
-#     )
-#     print(f"Status {game} was sent!")
-#     time.sleep(2)
+# send_broadcast_releases()
