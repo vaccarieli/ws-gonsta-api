@@ -118,7 +118,6 @@ def send_image(
         data.update({"media_file": media_file})
 
 
-
     return requests.post(
         f"{baseUrl}message/image", headers=headers, data=data, params=params
     )

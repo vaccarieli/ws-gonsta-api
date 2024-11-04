@@ -100,59 +100,59 @@ with open(
 
 ############################/////////////////////////////////
 
-# contacts_remaining = 0
-# total_contacts = len(status_contacts)
+contacts_remaining = 0
+total_contacts = len(status_contacts)
 
-# # Initialize the progress bar
-# progress_bar = tqdm(status_contacts, desc="Processing contacts", unit="contact", initial=1)
+# Initialize the progress bar
+progress_bar = tqdm(status_contacts, desc="Processing contacts", unit="contact", initial=1)
 
-# for contact in progress_bar:
-#     wait_time = random.randint(30, 49)
+for contact in progress_bar:
+    wait_time = random.randint(30, 49)
     
-#     if contact not in contacts_sent:
-#         send_message_vid(
-#             contact, "C:/Users/elios/Desktop/Promo Instalacion.mp4", mensajes_promocionales[wait_time], "elio", True
-#         )
+    if contact not in contacts_sent:
+        send_message_vid(
+            contact, "C:/Users/elios/Desktop/Promo Instalacion.mp4", mensajes_promocionales[wait_time], "elio", True
+        )
         
-#         # Append contact to the file
-#         with open(contacts_sent_path, "a", encoding="utf-8") as file:
-#             file.write(contact + "\n")
+        # Append contact to the file
+        with open(contacts_sent_path, "a", encoding="utf-8") as file:
+            file.write(contact + "\n")
         
-#         # Update contacts remaining
-#         contacts_remaining += 1
+        # Update contacts remaining
+        contacts_remaining += 1
 
-#         # Update the progress bar description with the latest contact and remaining count
-#         progress_bar.set_description(f"Message sent to: {contact}")
+        # Update the progress bar description with the latest contact and remaining count
+        progress_bar.set_description(f"Message sent to: {contact}")
 
-#         time.sleep(wait_time + 60)
-
-
-# # Close the progress bar
-# progress_bar.close()
+        time.sleep(wait_time + 60)
 
 
+# Close the progress bar
+progress_bar.close()
 
 
-data = extract_data()
-message_gen = MessageGenerator()
 
-for key, value in data.items():
-    game = key
-    yt_url = data[game].get("Youtube URL", None)
-    base64_image = data[game]["Base64 Image"]
+
+# data = extract_data()
+# message_gen = MessageGenerator()
+
+# for key, value in data.items():
+#     game = key
+#     yt_url = data[game].get("Youtube URL", None)
+#     base64_image = data[game]["Base64 Image"]
     
-    # Generate the appropriate message based on URL availability
-    message = message_gen.generate_message(yt_url)
+#     # Generate the appropriate message based on URL availability
+#     message = message_gen.generate_message(yt_url)
     
-    re = send_image(
-        phoneNumber="broadcast",
-        image=base64_image,
-        text=message,
-        userKey="elio",
-        precense_typying=False,
-        authorized_ids=status_contacts,
-        url_image=False,
-    )
+#     re = send_image(
+#         phoneNumber="broadcast",
+#         image=base64_image,
+#         text=message,
+#         userKey="elio",
+#         precense_typying=False,
+#         authorized_ids=status_contacts,
+#         url_image=False,
+#     )
 
-    print(f"Status {game} was sent!")
-    time.sleep(2)
+#     print(f"Status {game} was sent!")
+#     time.sleep(2)
