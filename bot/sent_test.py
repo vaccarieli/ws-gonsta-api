@@ -9,17 +9,13 @@ import random
 import time
 from tqdm import tqdm
 import os
-import json
-import requests
-
 
 main_project_path = Path("C:/Users/elios/Desktop/ws-gonsta-api")
 
 blacklist = ["50762949764", "50765312135"]
 new_contacts = []
 
-status_contacts = [i + "@s.whatsapp.net" for i in get_status_contacts(blacklist, new_contacts, ["switch", "wii", "3ds"])]
-
+status_contacts = get_status_contacts(blacklist, new_contacts, ["switch", "wii", "3ds"])
 
 mensajes_promocionales = {
     30: "🎮 Juegos ilimitados en tu *NINTENDO SWITCH* 🎮\nPor solo $69, instala *NUESTRA APLICACIÓN* y descarga juegos sin límite.\n¿No quieres pagar $69? Cada juego por $9.\n💥 ¡Transforma tu Switch hoy!",
@@ -43,9 +39,6 @@ mensajes_promocionales = {
     48: "🎮 Lleva tu *NINTENDO SWITCH* a otro nivel 🎮\nCon $69, instala *NUESTRA APLICACIÓN* y juega sin parar.\n¿Solo un juego? Está a $9.\n💥 ¡No te pierdas esta oferta única!",
     49: "🎮 Juegos ilimitados en tu *NINTENDO SWITCH* 🎮\nPor solo $69, disfruta de descargas ilimitadas con *NUESTRA APLICACIÓN*.\n¿No quieres pagar $69? Cada juego a $9.\n💥 ¡Dale a tu Switch el mejor catálogo!"
 }
-
-
-
 
 messages = {
     30: "Hola, soy Elio, el que te instaló los juegos en tu Switch. Cambié de número porque ya no estoy en el país. Ahora pueden contactarme a este número. ¡Saludos!",
@@ -81,7 +74,7 @@ with open(
 ) as file:
     contacts_sent = [i.strip() for i in file.readlines()]
 
-
+############################/////////////////////////////////############################/////////////////////////////////
 
 # contacts_remaining = 0
 # for contact in status_contacts:
@@ -98,7 +91,7 @@ with open(
 #         time.sleep(wait_time)
 #     contacts_remaining +=1
 
-############################/////////////////////////////////
+############################/////////////////////////////////############################/////////////////////////////////
 
 contacts_remaining = 0
 total_contacts = len(status_contacts)
@@ -126,12 +119,10 @@ for contact in progress_bar:
 
         time.sleep(wait_time + 60)
 
-
 # Close the progress bar
 progress_bar.close()
 
-
-
+############################/////////////////////////////////############################/////////////////////////////////
 
 # data = extract_data()
 # message_gen = MessageGenerator()
@@ -150,9 +141,8 @@ progress_bar.close()
 #         text=message,
 #         userKey="elio",
 #         precense_typying=False,
-#         authorized_ids=status_contacts,
+#         authorized_ids=[i + "@s.whatsapp.net" for i in status_contacts],
 #         url_image=False,
 #     )
-
 #     print(f"Status {game} was sent!")
 #     time.sleep(2)

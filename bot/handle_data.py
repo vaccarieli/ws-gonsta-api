@@ -14,33 +14,35 @@ import random
 
 class MessageGenerator:
     def __init__(self):
+        
         # Templates for messages with a YouTube URL
         self.templates_with_url = [
-            "🎮 ¡Disponible Hoy! ¡Escríbeme Ya! 🕹\n👉 Mira el video aquí: {url} 👈\n📲 #Nintendo #Switch #Videojuegos",
-            "🚀 ¡No te pierdas este contenido! 🎮\n🎬 Descubre lo que viene aquí: {url}\n🎮 #NintendoSwitch #Gaming",
-            "👾 ¡Atención, jugadores! 🎮\n👉 ¡Explora más en este video: {url} 👈\n#Switch #Videojuegos #Nintendo",
-            "🔥 ¡Nuevo lanzamiento que no puedes dejar pasar! 🕹\n📺 Mira todo en: {url}\n#Nintendo #SwitchGaming",
-            "🎉 ¡El video que todos esperan está aquí! 📲\n🎮 ¡Accede ahora: {url}\n#NintendoSwitch #GamerLife",
-            "🎮 ¡Nuevo contenido disponible y te está esperando! 👾\nMira el video completo aquí: {url}\n#Switch #GamingLife",
-            "🎉 ¡Descubre el juego en acción ahora! 🎮\n👉 Mira el video: {url}\n#Nintendo #Switch #Videojuegos",
-            "🔥 ¡No te pierdas este gameplay explosivo! 🎮\n🎬 Video aquí: {url}\n#NintendoSwitch #GameLovers",
-            "🚀 ¡Dale play para ver lo mejor de este lanzamiento! 🕹\n👉 Video aquí: {url}\n#SwitchGaming #NintendoFans",
-            "🎬 ¡Todo lo que deseas ver está aquí y más! 🎮\n📺 Link al video: {url}\n#Nintendo #SwitchCommunity"
+            "🎮 NINTENDO SWITCH: ¡Disponible Hoy! ¡Escríbeme Ya! 🕹\n👉 Mira el video aquí: {url} 👈\n📲 #Nintendo #Switch #Videojuegos",
+            "🚀 NINTENDO SWITCH: ¡No te pierdas este contenido! 🎮\n🎬 Dale un vistazo al video aquí: {url}\n🎮 #NintendoSwitch #Gaming",
+            "👾 NINTENDO SWITCH: ¡Atención jugadores! 🎮\n👉 Descubre más en este video: {url} 👈\n#Switch #Videojuegos #Nintendo",
+            "🔥 NINTENDO SWITCH: ¡Nuevo lanzamiento para todos los fans! 🕹\n📺 Mira todo en: {url}\n#Nintendo #SwitchGaming",
+            "🎉 NINTENDO SWITCH: ¡Aquí tienes el video más esperado! 📲\n🎮 Link directo: {url}\n#NintendoSwitch #GamerLife",
+            "🎮 NINTENDO SWITCH: ¡Nuevo contenido disponible! 👾\nMira el video completo aquí: {url}\n#Switch #GamingLife",
+            "🎉 NINTENDO SWITCH: ¡Descubre el juego en acción! 🎮\n👉 Enlace al video: {url}\n#Nintendo #Switch #Videojuegos",
+            "🔥 NINTENDO SWITCH: ¡No te pierdas el gameplay! 🎮\n🎬 Video aquí: {url}\n#NintendoSwitch #GameLovers",
+            "🚀 NINTENDO SWITCH: ¡Dale play para ver lo mejor de este lanzamiento! 🕹\n👉 Video aquí: {url}\n#SwitchGaming #NintendoFans",
+            "🎬 NINTENDO SWITCH: ¡Todo lo que quieres ver está aquí! 🎮\n📺 Link al video: {url}\n#Nintendo #SwitchCommunity"
         ]
 
         # Templates for messages without a YouTube URL (only a game cover announcement)
         self.templates_without_url = [
-            "🎮 ¡Nuevo lanzamiento ya disponible hoy! 🎉\n🖼️ ¡Mira la increíble portada del juego! 📲 #Nintendo #Switch #Videojuegos",
-            "🔥 ¡El juego que tanto esperabas ya llegó! 🎮\n📷 ¡Echa un vistazo a su portada! 🕹️ #Switch #Gaming",
-            "🚀 ¡Listo para la aventura! 🎮\n🖼️ ¡Observa la portada y descubre esta experiencia! #Nintendo #Switch #Videojuegos",
-            "🎉 ¡Nuevo contenido para los fanáticos! 🎮\n📷 ¡Aquí está la emocionante portada! #NintendoSwitch #Gaming",
-            "⚡ ¡Sumérgete en la diversión desde hoy! 🎮\n🖼️ Observa la portada y prepárate para jugar. #Switch #Nintendo #Videojuegos",
-            "🎮 ¡Ya disponible para todos los amantes de los juegos! 🕹️\n📷 ¡Disfruta de la portada y no te quedes sin jugar! #NintendoSwitch #Videojuegos",
-            "🚀 ¡Aventúrate con el nuevo lanzamiento! 🎮\n🖼️ Observa la portada y anímate a jugar ya. #Nintendo #Switch",
-            "🔥 ¡Es el gran día de lanzamiento! 🎉\n📷 ¡Aquí tienes la portada del juego! #Switch #Gaming",
-            "👾 ¡La espera ha terminado, el juego ya llegó! 🎮\n🖼️ Descubre la portada del juego hoy mismo. #NintendoSwitch #GamingTime",
-            "⚡ ¡Un juego nuevo ya está aquí para ti! 🕹️\n📷 Mira la portada y prepárate para la diversión. #Switch #Nintendo"
+            "🎮 NINTENDO SWITCH: ¡Nuevo lanzamiento disponible hoy! 🎉\n🖼️ ¡Mira la portada del juego! 📲 #Nintendo #Switch #Videojuegos",
+            "🔥 NINTENDO SWITCH: ¡Ya llegó el juego que esperabas! 🎮\n📷 ¡Echa un vistazo a la portada! 🕹️ #Switch #Gaming",
+            "🚀 NINTENDO SWITCH: ¡Listo para jugar! 🎮\n🖼️ ¡Mira la portada y descubre esta experiencia! #Nintendo #Switch #Videojuegos",
+            "🎉 NINTENDO SWITCH: ¡Nuevo contenido para los fanáticos de siempre! 🎮\n📷 ¡Aquí está la portada! #NintendoSwitch #Gaming",
+            "⚡ NINTENDO SWITCH: ¡Sumérgete en la experiencia desde hoy! 🎮\n🖼️ Observa la portada y prepárate para jugar. #Switch #Nintendo #Videojuegos",
+            "🎮 NINTENDO SWITCH: ¡Ya disponible para todos! 🕹️\n📷 ¡Disfruta de la portada y prepárate! #NintendoSwitch #Videojuegos",
+            "🚀 NINTENDO SWITCH: ¡Aventúrate con el nuevo lanzamiento! 🎮\n🖼️ Observa la portada y anímate a jugar. #Nintendo #Switch",
+            "🔥 NINTENDO SWITCH: ¡Es el día de lanzamiento! 🎉\n📷 ¡Aquí tienes la portada del juego! #Switch #Gaming",
+            "👾 NINTENDO SWITCH: ¡La espera ha terminado! 🎮\n🖼️ Descubre la portada del juego hoy. #NintendoSwitch #GamingTime",
+            "⚡ NINTENDO SWITCH: ¡Un juego nuevo ya está aquí! 🕹️\n📷 Mira la portada y sumérgete en la diversión. #Switch #Nintendo"
         ]
+
 
     def generate_message(self, yt_url=None):
         if yt_url:
