@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from pathlib import Path
+import random
 
 main_project_path = Path("C:/Users/elios/Desktop/ws-gonsta-api")
 
@@ -8,10 +9,51 @@ vcf_file_path = main_project_path / "bot/contacts.vcf"
 vcf_file_path_final = main_project_path / "bot/contacts_final.vcf"
 
 
-def generate_message(yt_url):
-    return f"""🎮 ¡Disponible Hoy! ¡Escribeme Ya!🕹
-👉 Mira El Video Aquí: {yt_url} 👈
-📲 #Nintendo #Switch #Videojuegos """
+
+import random
+
+class MessageGenerator:
+    def __init__(self):
+        # Templates for messages with a YouTube URL
+        self.templates_with_url = [
+            "🎮 ¡Disponible Hoy! ¡Escríbeme Ya!🕹\n👉 Mira el video aquí: {url} 👈\n📲 #Nintendo #Switch #Videojuegos",
+            "🚀 ¡No te pierdas este contenido! 🎮\n🎬 Dale un vistazo al video aquí: {url}\n🎮 #NintendoSwitch #Gaming",
+            "👾 ¡Atención jugadores! 🎮\n👉 Descubre más en este video: {url} 👈\n#Switch #Videojuegos #Nintendo",
+            "🔥 ¡Nuevo lanzamiento para todos los fans! 🕹\n📺 Mira todo en: {url}\n#Nintendo #SwitchGaming",
+            "🎉 ¡Aquí tienes el video más esperado! 📲\n🎮 Link directo: {url}\n#NintendoSwitch #GamerLife",
+            "🎮 ¡Nuevo contenido disponible! 👾\nMira el video completo aquí: {url}\n#Switch #GamingLife",
+            "🎉 ¡Descubre el juego en acción! 🎮\n👉 Enlace al video: {url}\n#Nintendo #Switch #Videojuegos",
+            "🔥 ¡No te pierdas el gameplay! 🎮\n🎬 Video aquí: {url}\n#NintendoSwitch #GameLovers",
+            "🚀 ¡Dale play para ver lo mejor de este lanzamiento! 🕹\n👉 Video aquí: {url}\n#SwitchGaming #NintendoFans",
+            "🎬 ¡Todo lo que quieres ver está aquí! 🎮\n📺 Link al video: {url}\n#Nintendo #SwitchCommunity"
+        ]
+
+        # Templates for messages without a YouTube URL (only a game cover announcement)
+        self.templates_without_url = [
+            "🎮 ¡Nuevo lanzamiento disponible hoy! 🎉\n🖼️ ¡Mira la portada del juego! 📲 #Nintendo #Switch #Videojuegos",
+            "🔥 ¡Ya llegó el juego que esperabas! 🎮\n📷 ¡Echa un vistazo a la portada! 🕹️ #Switch #Gaming",
+            "🚀 ¡Listo para jugar! 🎮\n🖼️ ¡Mira la portada y descubre esta experiencia! #Nintendo #Switch #Videojuegos",
+            "🎉 ¡Nuevo contenido para los fanáticos de siempre! 🎮\n📷 ¡Aquí está la portada! #NintendoSwitch #Gaming",
+            "⚡ ¡Sumérgete en la experiencia desde hoy! 🎮\n🖼️ Observa la portada y prepárate para jugar. #Switch #Nintendo #Videojuegos",
+            "🎮 ¡Ya disponible para todos! 🕹️\n📷 ¡Disfruta de la portada y prepárate! #NintendoSwitch #Videojuegos",
+            "🚀 ¡Aventúrate con el nuevo lanzamiento! 🎮\n🖼️ Observa la portada y anímate a jugar. #Nintendo #Switch",
+            "🔥 ¡Es el día de lanzamiento! 🎉\n📷 ¡Aquí tienes la portada del juego! #Switch #Gaming",
+            "👾 ¡La espera ha terminado! 🎮\n🖼️ Descubre la portada del juego hoy. #NintendoSwitch #GamingTime",
+            "⚡ ¡Un juego nuevo ya está aquí! 🕹️\n📷 Mira la portada y sumérgete en la diversión. #Switch #Nintendo"
+        ]
+
+
+    def generate_message(self, yt_url=None):
+        if yt_url:
+            # Choose a template that includes the YouTube URL
+            message_template = random.choice(self.templates_with_url)
+            return message_template.format(url=yt_url)
+        else:
+            # Choose a template without a YouTube URL
+            return random.choice(self.templates_without_url)
+
+
+
 
 
 def extract_url(url) -> str:

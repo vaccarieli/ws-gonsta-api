@@ -99,14 +99,7 @@ def send_image(
 
     params = {"key": userKey, "precense_typying": precense_typying}
 
-    if not url_image:
-        with open(image, "rb") as im:
-            image_bytes = im.read()
-            encoded_image = base64.b64encode(image_bytes).decode("utf-8")
-        media_file = (path.basename(image), encoded_image, guess_type(image)[0])
-    else:
-        media_file = image
-
+    
     data = {
         "id": phoneNumber + idType["normalChat"]
         if ((len(phoneNumber) >= 10 and len(phoneNumber) <= 12) and phoneNumber != "broadcast" and "-" not in phoneNumber)
@@ -118,6 +111,13 @@ def send_image(
 
     if authorized_ids:
         data.update({"authorized_ids": json.dumps(authorized_ids)})
+
+
+    if not url_image:
+        media_file = ("image_name.jpg", image, "mimetype")
+        data.update({"media_file": media_file})
+
+
 
     return requests.post(
         f"{baseUrl}message/image", headers=headers, data=data, params=params

@@ -1,34 +1,24 @@
 from wsmsg import send_image, requests_get, send_message, send_message_vid
 from handle_data import (
-    extract_main_data,
-    add_yt_url_to_data,
-    generate_message,
-    get_status_contacts,
+    get_status_contacts, MessageGenerator
 )
+from process_data_releases import extract_data
 import time
 from pathlib import Path
 import random
 import time
 from tqdm import tqdm
 import os
+import json
+import requests
 
 
 main_project_path = Path("C:/Users/elios/Desktop/ws-gonsta-api")
 
-digital_contents = [
-    "Switch_Games",
-    "Movies",
-    "PlayStation_5_Games",
-    "Xbox_Series_X_Games",
-    "TV_Series_Seasons",
-]
-
-url_website = f"https://www.releases.com/l/Switch_Games"
-
-blacklist = []
+blacklist = ["50762949764", "50765312135"]
 new_contacts = []
 
-status_contacts = get_status_contacts(blacklist, new_contacts, ["switch", "wii", "3ds"])
+status_contacts = [i + "@s.whatsapp.net" for i in get_status_contacts(blacklist, new_contacts, ["switch", "wii", "3ds"])]
 
 
 mensajes_promocionales = {
@@ -80,9 +70,6 @@ messages = {
     49: "¡Hola! Soy Elio, el que configuró los juegos en su Nintendo Switch. Cambié de teléfono y ya no tengo el contacto anterior. Este es el nuevo."
 }
 
-
-
-
 contacts_sent_path = (
     main_project_path / "bot/track_sent_contacts.txt"
 )
@@ -93,6 +80,7 @@ with open(
     encoding="utf-8",
 ) as file:
     contacts_sent = [i.strip() for i in file.readlines()]
+
 
 
 # contacts_remaining = 0
@@ -110,68 +98,61 @@ with open(
 #         time.sleep(wait_time)
 #     contacts_remaining +=1
 
-contacts_remaining = 0
-total_contacts = len(status_contacts)
+############################/////////////////////////////////
 
-# Initialize the progress bar
-progress_bar = tqdm(status_contacts, desc="Processing contacts", unit="contact", initial=1)
+# contacts_remaining = 0
+# total_contacts = len(status_contacts)
 
-for contact in progress_bar:
-    wait_time = random.randint(30, 49)
+# # Initialize the progress bar
+# progress_bar = tqdm(status_contacts, desc="Processing contacts", unit="contact", initial=1)
+
+# for contact in progress_bar:
+#     wait_time = random.randint(30, 49)
     
-    if contact not in contacts_sent:
-        send_message_vid(
-            contact, "C:/Users/elios/Desktop/Promo Instalacion.mp4", mensajes_promocionales[wait_time], "elio", True
-        )
+#     if contact not in contacts_sent:
+#         send_message_vid(
+#             contact, "C:/Users/elios/Desktop/Promo Instalacion.mp4", mensajes_promocionales[wait_time], "elio", True
+#         )
         
-        # Append contact to the file
-        with open(contacts_sent_path, "a", encoding="utf-8") as file:
-            file.write(contact + "\n")
+#         # Append contact to the file
+#         with open(contacts_sent_path, "a", encoding="utf-8") as file:
+#             file.write(contact + "\n")
         
-        # Update contacts remaining
-        contacts_remaining += 1
+#         # Update contacts remaining
+#         contacts_remaining += 1
 
-        # Update the progress bar description with the latest contact and remaining count
-        progress_bar.set_description(f"Message sent to: {contact}")
+#         # Update the progress bar description with the latest contact and remaining count
+#         progress_bar.set_description(f"Message sent to: {contact}")
 
-        time.sleep(wait_time + 40)
-
-
-# Close the progress bar
-progress_bar.close()
+#         time.sleep(wait_time + 60)
 
 
+# # Close the progress bar
+# progress_bar.close()
 
 
 
 
+data = extract_data()
+message_gen = MessageGenerator()
 
+for key, value in data.items():
+    game = key
+    yt_url = data[game].get("Youtube URL", None)
+    base64_image = data[game]["Base64 Image"]
+    
+    # Generate the appropriate message based on URL availability
+    message = message_gen.generate_message(yt_url)
+    
+    re = send_image(
+        phoneNumber="broadcast",
+        image=base64_image,
+        text=message,
+        userKey="elio",
+        precense_typying=False,
+        authorized_ids=status_contacts,
+        url_image=False,
+    )
 
-
-# # Get data from the main page and organize it into a dictionary.
-# data = extract_main_data(requests_get(url_website))
-# print("Step 1 Done...")
-
-# data = add_yt_url_to_data(requests_get, data)
-# print("Step 2 Done...")
-
-# for key, value in data.items():
-#     game = key
-#     yt_url = data[game].get("yt_link", None)
-#     if not yt_url:
-#         continue
-#     image_url = data[game]["Image"]
-#     message = generate_message(yt_url)
-
-#     re = send_image(
-#         phoneNumber="broadcast",
-#         image=image_url,
-#         text=message,
-#         userKey="Elio",
-#         precense_typying=False,
-#         authorized_ids=status_contacts,
-#         url_image=True,
-#     )
-
-#     print(f"Status {game} was sent!")
-#     time.sleep(2)
+    print(f"Status {game} was sent!")
+    time.sleep(2)

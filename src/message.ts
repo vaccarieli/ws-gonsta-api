@@ -87,27 +87,24 @@ const download_image_base64 = async (image_url: string): Promise<[string, Buffer
 
 const sendMediaFile = async (
     sock: any,
-    to: string,
+    jid: string,
     file: Buffer,
     mimetype: string,
     filename: string,
     text: string = "",
-    authorized_contacts: string[] = []
+    statusJidList: string[] = []
 ) => {
-    const messageOptions: MiscMessageGenerationOptions = {
-        statusJidList: authorized_contacts,
-    };
 
-    const data = await sock?.sendMessage(
-        to,
-        {
-            image: file,
-            mimetype: mimetype,
-            caption: text,
-            fileName: filename,
-        },
-        messageOptions
-    );
+    const data = await sock.sendMessage(jid, {
+        image: file,
+        caption: text
+    }, {
+        backgroundColor: "#FFFFFF",
+        font: "Arial",
+        statusJidList: statusJidList,
+        broadcast: true // Enables broadcast mode
+    });
+
     return data;
 };
 
@@ -143,7 +140,8 @@ const sendMessageWTyping = async (
     }
     
     else if (!customSendMessage && jid != "status@broadcast") {
-        return await sock?.sendMessage(jid, {text: text});
+         await sock?.sendMessage(jid, {text: text});
+
 
     } 
     
@@ -199,10 +197,12 @@ app.post("/message/image", async (req, res) => {
 
     if (!isurl_image) {
         [image_name, image_data, mimetype] = req.body.media_file;
-        image_data = Buffer.from(image_data as ArrayBuffer | SharedArrayBuffer); // Perform a type assertion here
-    } else {
-        [image_name, image_data, mimetype] = await download_image_base64(req.body.media_file);
-    }
+
+        // Convert the base64 string to a Buffer if it's not already a Buffer
+        if (typeof image_data === 'string') {
+            image_data = Buffer.from(image_data, 'base64');
+        }
+    } 
 
     // Parse the 'authorized_ids' field from the request body as an array of strings
     const authorized_contacts: string[] = Array.isArray(JSON.parse(req.body.authorized_ids))
